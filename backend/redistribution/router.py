@@ -9,7 +9,8 @@ from backend.core.deps import get_current_user, require_roles, check_tenant_acce
 from backend.models.entities import RedistributionRequest, NGOPartner, Kitchen, FoodItem, User
 from backend.schemas.redistribution import (
     RedistributionRequestCreate, RedistributionRequestOut,
-    NGOPartnerOut, MatchResponse, NGOMatchRecommendation
+    NGOPartnerOut, MatchResponse, NGOMatchRecommendation,
+    SurplusOfferResponse
 )
 
 router = APIRouter()
@@ -68,6 +69,7 @@ def list_surplus(
     return results
 
 @router.post("/surplus", response_model=RedistributionRequestOut)
+@router.post("/requests", response_model=RedistributionRequestOut)
 def post_surplus(
     item_in: RedistributionRequestCreate,
     db: Session = Depends(get_db),
@@ -217,14 +219,24 @@ def claim_surplus(
     }
 
 @router.post("/respond/{request_id}")
+@router.post("/requests/{request_id}/respond")
 def respond_to_surplus_offer(
     request_id: int,
-    accepted: bool,
+    payload: Optional[SurplusOfferResponse] = None,
+    accepted: Optional[bool] = None,
     rejection_reason: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(["NGO_REP", "KITCHEN_MANAGER", "ORG_ADMIN", "SUPER_ADMIN"]))
 ):
     """NGO partner confirms acceptance or rejection of matched surplus lot."""
+    is_accepted = payload.accept if payload is not None else accepted
+    if is_accepted is None:
+        raise HTTPException(
+            status_code=422,
+            detail="Missing required field: 'accept' (boolean) must be provided in request body or 'accepted' query parameter."
+        )
+    reason = (payload.rejection_reason if payload is not None else rejection_reason) or None
+
     surplus = db.query(RedistributionRequest).filter(RedistributionRequest.id == request_id).first()
     if not surplus:
         raise HTTPException(status_code=404, detail="Surplus request not found")
@@ -240,14 +252,16 @@ def respond_to_surplus_offer(
     if surplus.status != "MATCHED":
         raise HTTPException(status_code=400, detail=f"Request status is '{surplus.status}'. Only MATCHED requests can be accepted or rejected.")
 
-    if accepted:
+    if is_accepted:
         surplus.status = "SCHEDULED_FOR_PICKUP"
         msg = "Offer accepted by NGO partner. Ready for logistics fleet assignment."
     else:
         # Revert back to open pool for other NGOs
         surplus.status = "POSTED"
         surplus.claimed_by_ngo_id = None
-        msg = f"Offer declined ({rejection_reason or 'Capacity constraint'}). Surplus lot returned to open pool."
+        msg = f"Offer declined ({reason or 'Capacity constraint'}). Surplus lot returned to open pool."
 
     db.commit()
-    return {"message": msg, "status": surplus.status}
+    db.refresh(surplus)
+    return {"message": msg, "request_id": surplus.id, "status": surplus.status}
+

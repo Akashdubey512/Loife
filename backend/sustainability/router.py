@@ -67,31 +67,38 @@ def get_sustainability_summary(
         .all()
     )
 
-    verified_kg = sum(r.quantity_kg for r in verified_requests)
     pipeline_kg = sum(r.quantity_kg for r in pipeline_requests)
     
-    # Check historical metric table if database seeded
-    historical_metrics = (
-        db.query(SustainabilityMetric)
-        .filter(SustainabilityMetric.organization_id == organization_id)
-        .all()
-    )
-    metric_co2 = sum(m.co2_avoided_kg for m in historical_metrics)
-    metric_water = sum(m.water_saved_liters for m in historical_metrics)
-    metric_land = sum(m.land_use_prevented_sqm for m in historical_metrics)
-    metric_cost = sum(m.cost_savings_inr for m in historical_metrics)
-    metric_meals = sum(m.meals_served_to_needy for m in historical_metrics)
-    metric_kg = sum(m.food_rescued_kg for m in historical_metrics)
-
-    # Combined verified totals
-    total_verified_kg = verified_kg + metric_kg
-    total_meals = sum(r.estimated_meals for r in verified_requests) + metric_meals
-
-    # If new tenant with zero data, return zeroed metrics (or transparent calculation)
-    co2_saved = round(metric_co2 + (verified_kg * 2.5), 1)
-    water_saved = round(metric_water + (verified_kg * 550.0), 1)
-    land_saved = round(metric_land + (verified_kg * 2.0), 1)
-    cost_saved = round(metric_cost + (verified_kg * 110.0), 1)
+    # Establish authoritative source of truth:
+    # If live verified deliveries exist, compute metrics directly from the verified requests to avoid double counting.
+    if verified_requests:
+        total_verified_kg = sum(r.quantity_kg for r in verified_requests)
+        total_meals = sum(r.estimated_meals for r in verified_requests)
+        co2_saved = round(sum(r.quantity_kg * (r.food_item.carbon_footprint_per_kg if r.food_item and r.food_item.carbon_footprint_per_kg else 2.5) for r in verified_requests), 1)
+        water_saved = round(sum(r.quantity_kg * (r.food_item.water_footprint_per_kg if r.food_item and r.food_item.water_footprint_per_kg else 550.0) for r in verified_requests), 1)
+        land_saved = round(total_verified_kg * 2.0, 1)
+        cost_saved = round(total_verified_kg * 110.0, 1)
+    else:
+        # Check historical metric table if legacy/historical records exist
+        historical_metrics = (
+            db.query(SustainabilityMetric)
+            .filter(SustainabilityMetric.organization_id == organization_id)
+            .all()
+        )
+        if historical_metrics:
+            total_verified_kg = sum(m.food_rescued_kg for m in historical_metrics)
+            total_meals = sum(m.meals_served_to_needy for m in historical_metrics)
+            co2_saved = round(sum(m.co2_avoided_kg for m in historical_metrics), 1)
+            water_saved = round(sum(m.water_saved_liters for m in historical_metrics), 1)
+            land_saved = round(sum(m.land_use_prevented_sqm for m in historical_metrics), 1)
+            cost_saved = round(sum(m.cost_savings_inr for m in historical_metrics), 1)
+        else:
+            total_verified_kg = 0.0
+            total_meals = 0
+            co2_saved = 0.0
+            water_saved = 0.0
+            land_saved = 0.0
+            cost_saved = 0.0
 
     return SustainabilitySummary(
         timeframe=timeframe,
@@ -110,6 +117,7 @@ def get_sustainability_summary(
 @router.get("/by-category", response_model=List[CategoryImpact])
 def get_category_breakdown(
     organization_id: int = 1,
+    include_benchmarks: bool = False,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -147,19 +155,22 @@ def get_category_breakdown(
                     land_sqm=round(kg * factor["land_sqm_per_kg"], 1),
                 )
             )
-    else:
-        # Benchmark illustrative data when zero verified recoveries have occurred
+    elif include_benchmarks:
+        # Clearly labeled illustrative benchmark data
         for key, factors in LIFECYCLE_FACTORS.items():
             bench_kg = {"GRAINS": 650.0, "VEGETABLES": 820.0, "DAIRY": 340.0, "COOKED_MEALS": 1420.0, "BAKERY": 410.0}.get(key, 200.0)
             results.append(
                 CategoryImpact(
-                    category=factors["label"],
+                    category=f"[Benchmark] {factors['label']}",
                     kg_saved=bench_kg,
                     co2_kg=round(bench_kg * factors["co2_per_kg"], 1),
                     water_liters=round(bench_kg * factors["water_per_kg"], 1),
                     land_sqm=round(bench_kg * factors["land_sqm_per_kg"], 1),
                 )
             )
+    else:
+        # Transparent empty response for tenants without verified deliveries
+        results = []
 
     return results
 
@@ -175,7 +186,7 @@ def get_executive_stats(
     kitchen_count = db.query(func.count(Kitchen.id)).filter(Kitchen.organization_id == organization_id).scalar() or 1
     ngo_count = db.query(func.count(Organization.id)).filter(Organization.type == "NGO").scalar() or 4
 
-    # Verified quantities
+    # Verified quantities without double counting
     verified_requests = (
         db.query(RedistributionRequest)
         .join(Kitchen, RedistributionRequest.kitchen_id == Kitchen.id)
@@ -185,23 +196,29 @@ def get_executive_stats(
         )
         .all()
     )
-    metric_sum = (
-        db.query(
-            func.coalesce(func.sum(SustainabilityMetric.food_rescued_kg), 0.0),
-            func.coalesce(func.sum(SustainabilityMetric.co2_avoided_kg), 0.0),
-            func.coalesce(func.sum(SustainabilityMetric.water_saved_liters), 0.0),
-            func.coalesce(func.sum(SustainabilityMetric.cost_savings_inr), 0.0),
-            func.coalesce(func.sum(SustainabilityMetric.meals_served_to_needy), 0),
+    if verified_requests:
+        verified_kg = sum(r.quantity_kg for r in verified_requests)
+        meals = sum(r.estimated_meals for r in verified_requests)
+        co2_kg = sum(r.quantity_kg * (r.food_item.carbon_footprint_per_kg if r.food_item and r.food_item.carbon_footprint_per_kg else 2.5) for r in verified_requests)
+        water_l = sum(r.quantity_kg * (r.food_item.water_footprint_per_kg if r.food_item and r.food_item.water_footprint_per_kg else 550.0) for r in verified_requests)
+        cost_inr = verified_kg * 110.0
+    else:
+        metric_sum = (
+            db.query(
+                func.coalesce(func.sum(SustainabilityMetric.food_rescued_kg), 0.0),
+                func.coalesce(func.sum(SustainabilityMetric.co2_avoided_kg), 0.0),
+                func.coalesce(func.sum(SustainabilityMetric.water_saved_liters), 0.0),
+                func.coalesce(func.sum(SustainabilityMetric.cost_savings_inr), 0.0),
+                func.coalesce(func.sum(SustainabilityMetric.meals_served_to_needy), 0),
+            )
+            .filter(SustainabilityMetric.organization_id == organization_id)
+            .first()
         )
-        .filter(SustainabilityMetric.organization_id == organization_id)
-        .first()
-    )
-
-    verified_kg = sum(r.quantity_kg for r in verified_requests) + float(metric_sum[0])
-    co2_kg = (verified_kg * 2.5) if verified_kg > 0 else float(metric_sum[1])
-    water_l = (verified_kg * 550.0) if verified_kg > 0 else float(metric_sum[2])
-    cost_inr = (verified_kg * 110.0) if verified_kg > 0 else float(metric_sum[3])
-    meals = sum(r.estimated_meals for r in verified_requests) + int(metric_sum[4])
+        verified_kg = float(metric_sum[0])
+        co2_kg = float(metric_sum[1])
+        water_l = float(metric_sum[2])
+        cost_inr = float(metric_sum[3])
+        meals = int(metric_sum[4])
 
     return ExecutiveDashboardStats(
         total_food_saved_kg=round(verified_kg, 1),

@@ -54,3 +54,8 @@ class NGOMatchRecommendation(BaseModel):
 class MatchResponse(BaseModel):
     request_id: int
     recommended_matches: List[NGOMatchRecommendation]
+
+class SurplusOfferResponse(BaseModel):
+    accept: bool
+    rejection_reason: Optional[str] = None
+

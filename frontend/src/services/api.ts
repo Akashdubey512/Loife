@@ -49,6 +49,20 @@ apiClient.interceptors.response.use(
   }
 );
 
+export const isDemoMode = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('reserve_demo_mode') === 'true' ||
+         (import.meta as any).env?.VITE_DEMO_MODE === 'true';
+};
+
+const handleFallback = <T>(fnName: string, mockData: T, error: any): T => {
+  if (isDemoMode()) {
+    console.warn(`[reServe AI Demo Mode] API call '${fnName}' failed. Using offline demo data.`, error);
+    return mockData;
+  }
+  throw error;
+};
+
 export const apiService = {
   // Authentication & Session
   login: async (username: string, password: string): Promise<{ access_token: string; token_type: string; user: AuthUser }> => {
@@ -73,11 +87,11 @@ export const apiService = {
     try {
       const res = await apiClient.get('/kitchens/');
       return res.data;
-    } catch {
-      return [
+    } catch (err) {
+      return handleFallback('getKitchens', [
         { id: 1, name: 'Central Commissary & Mess Hall Alpha', facility_code: 'KIT-DELHI-001', daily_meal_capacity: 2800 },
         { id: 2, name: 'South Wing Bakery & Processing Facility', facility_code: 'KIT-DELHI-002', daily_meal_capacity: 1200 }
-      ];
+      ], err);
     }
   },
 
@@ -85,14 +99,14 @@ export const apiService = {
     try {
       const res = await apiClient.get('/inventory/food-items');
       return res.data;
-    } catch {
-      return [
+    } catch (err) {
+      return handleFallback('getFoodItems', [
         { id: 1, name: 'Basmati Rice & Dal Makhani', category: 'COOKED_MEALS' },
         { id: 2, name: 'Paneer Butter Masala', category: 'COOKED_MEALS' },
         { id: 3, name: 'Farm Fresh Tomatoes & Bell Peppers', category: 'VEGETABLES' },
         { id: 4, name: 'Fresh Dairy Paneer (Raw)', category: 'DAIRY' },
         { id: 5, name: 'Multigrain Sandwich Bread & Buns', category: 'BAKERY' }
-      ];
+      ], err);
     }
   },
 
@@ -100,8 +114,8 @@ export const apiService = {
     try {
       const res = await apiClient.get(`/inventory/batches/expiring?kitchen_id=${kitchenId}`);
       return res.data;
-    } catch {
-      return [];
+    } catch (err) {
+      return handleFallback('getExpiringBatches', [], err);
     }
   },
 
@@ -110,8 +124,8 @@ export const apiService = {
     try {
       const res = await apiClient.get('/analytics/executive-stats');
       return res.data;
-    } catch {
-      return {
+    } catch (err) {
+      return handleFallback('getExecutiveStats', {
         total_food_saved_kg: 14250.0,
         waste_reduction_percentage: 38.2,
         carbon_reduction_kg: 35625.0,
@@ -121,7 +135,7 @@ export const apiService = {
         meals_redistributed: 28500,
         active_kitchens_monitored: 6,
         active_ngo_partners: 14,
-      };
+      }, err);
     }
   },
 
@@ -129,15 +143,15 @@ export const apiService = {
     try {
       const res = await apiClient.get('/analytics/monthly-trend');
       return res.data;
-    } catch {
-      return [
+    } catch (err) {
+      return handleFallback('getMonthlyTrends', [
         { month: 'Apr', waste_generated_kg: 2400, food_rescued_kg: 950, cost_saved_inr: 104500 },
         { month: 'May', waste_generated_kg: 2150, food_rescued_kg: 1300, cost_saved_inr: 143000 },
         { month: 'Jun', waste_generated_kg: 1900, food_rescued_kg: 1650, cost_saved_inr: 181500 },
         { month: 'Jul', waste_generated_kg: 1650, food_rescued_kg: 2100, cost_saved_inr: 231000 },
         { month: 'Aug', waste_generated_kg: 1400, food_rescued_kg: 2550, cost_saved_inr: 280500 },
         { month: 'Sep', waste_generated_kg: 1150, food_rescued_kg: 3100, cost_saved_inr: 341000 },
-      ];
+      ], err);
     }
   },
 
@@ -146,14 +160,14 @@ export const apiService = {
     try {
       const res = await apiClient.get(`/demand/forecast?kitchen_id=${kitchenId}`);
       return res.data.predictions;
-    } catch {
-      return [
+    } catch (err) {
+      return handleFallback('getDemandForecast', [
         { food_item_id: 1, food_name: 'Basmati Rice & Dal Makhani', expected_demand_kg: 182.4, confidence_score: 0.94, recommended_production_kg: 190.0, surplus_risk_probability: 0.08, model_version: 'lgbm-genpact-v1.4' },
         { food_item_id: 2, food_name: 'Paneer Butter Masala', expected_demand_kg: 145.0, confidence_score: 0.92, recommended_production_kg: 152.0, surplus_risk_probability: 0.11, model_version: 'lgbm-genpact-v1.4' },
         { food_item_id: 3, food_name: 'Seasonal Mixed Vegetable Sabzi', expected_demand_kg: 110.5, confidence_score: 0.96, recommended_production_kg: 115.0, surplus_risk_probability: 0.05, model_version: 'lgbm-genpact-v1.4' },
         { food_item_id: 4, food_name: 'Tandoori Whole Wheat Roti', expected_demand_kg: 220.0, confidence_score: 0.95, recommended_production_kg: 230.0, surplus_risk_probability: 0.06, model_version: 'lgbm-genpact-v1.4' },
         { food_item_id: 5, food_name: 'Garden Cucumber & Beetroot Salad', expected_demand_kg: 68.0, confidence_score: 0.89, recommended_production_kg: 72.0, surplus_risk_probability: 0.14, model_version: 'lgbm-genpact-v1.4' }
-      ];
+      ], err);
     }
   },
 
@@ -172,14 +186,14 @@ export const apiService = {
     try {
       const res = await apiClient.get(`/waste/predictions?kitchen_id=${kitchenId}`);
       return res.data;
-    } catch {
-      return {
+    } catch (err) {
+      return handleFallback('getWastePrediction', {
         kitchen_id: kitchenId,
         expected_waste_kg: 14.8,
         waste_probability: 0.21,
         predicted_root_cause: 'Overproduction during dinner peak',
         prevention_recommendation: 'Throttle batch size by 8% to reduce surplus.'
-      };
+      }, err);
     }
   },
 
@@ -201,8 +215,8 @@ export const apiService = {
     try {
       const res = await apiClient.get(`/inventory/?kitchen_id=${kitchenId}`);
       return res.data;
-    } catch {
-      return [
+    } catch (err) {
+      return handleFallback('getInventory', [
         {
           id: 1,
           food_item_id: 1,
@@ -226,7 +240,7 @@ export const apiService = {
             { id: 103, batch_number: 'BATCH-2026-K1-103', remaining_quantity_kg: 35.0, expiry_date: new Date(Date.now() + 6 * 3600 * 1000).toISOString(), status: 'OPTIMAL' }
           ]
         }
-      ];
+      ], err);
     }
   },
 
@@ -255,8 +269,8 @@ export const apiService = {
     try {
       const res = await apiClient.get('/redistribution/surplus');
       return res.data;
-    } catch {
-      return [
+    } catch (err) {
+      return handleFallback('getSurplusList', [
         {
           id: 201,
           kitchen_id: 1,
@@ -287,7 +301,7 @@ export const apiService = {
           status: 'POSTED',
           created_at: new Date().toISOString()
         }
-      ];
+      ], err);
     }
   },
 
@@ -295,12 +309,12 @@ export const apiService = {
     try {
       const res = await apiClient.post(`/redistribution/match/${requestId}`);
       return res.data.recommended_matches;
-    } catch {
-      return [
+    } catch (err) {
+      return handleFallback('matchNGOs', [
         { ngo_id: 1, ngo_name: 'Robin Hood Army - Central Hub', compatibility_score: 98.4, distance_km: 3.8, capacity_available: 850, has_cold_storage: true, eta_pickup_minutes: 22, address: 'Connaught Place Community Hall, New Delhi', phone: '+91 98101 44552' },
         { ngo_id: 2, ngo_name: 'Feeding India by Zomato - Hub East', compatibility_score: 92.1, distance_km: 6.2, capacity_available: 600, has_cold_storage: true, eta_pickup_minutes: 35, address: 'Mayur Vihar Phase 1 Shelter Complex, New Delhi', phone: '+91 98112 55663' },
         { ngo_id: 3, ngo_name: 'Roti Bank Foundation - Noida Sector 18', compatibility_score: 87.5, distance_km: 8.5, capacity_available: 450, has_cold_storage: false, eta_pickup_minutes: 42, address: 'Atta Market Relief Shelter, Noida', phone: '+91 98113 66774' },
-      ];
+      ], err);
     }
   },
 
@@ -322,8 +336,8 @@ export const apiService = {
     try {
       const res = await apiClient.get('/logistics/routes');
       return res.data;
-    } catch {
-      return [
+    } catch (err) {
+      return handleFallback('getRoutes', [
         {
           id: 501,
           route_code: 'RT-DELHI-NORTH-01',
@@ -339,7 +353,7 @@ export const apiService = {
             { sequence: 3, name: 'Feeding India Shelter East', action: 'DELIVERY', lat: 28.6080, lng: 77.2950, load_change_kg: -35.0, status: 'PENDING' }
           ]
         }
-      ];
+      ], err);
     }
   },
 
@@ -388,8 +402,8 @@ export const apiService = {
     try {
       const res = await apiClient.get('/sustainability/summary');
       return res.data;
-    } catch {
-      return {
+    } catch (err) {
+      return handleFallback('getSustainabilitySummary', {
         timeframe: 'LAST_30_DAYS',
         food_rescued_kg: 4250.0,
         co2_avoided_kg: 10625.0,
@@ -399,7 +413,7 @@ export const apiService = {
         meals_served_to_needy: 8500,
         esg_score_contribution: '+22.8%',
         waste_diversion_rate_pct: 36.4,
-      };
+      }, err);
     }
   },
 

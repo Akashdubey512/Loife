@@ -172,6 +172,20 @@ Human inspector sign-off certifying batch compliance for redistribution.
 
 ## 5. Surplus Redistribution & Fleet Logistics (Workflow D)
 
+### `POST /redistribution/surplus` (Alias: `POST /redistribution/requests`)
+Creates a new surplus redistribution listing from institutional kitchen prep batches.
+- **Request Body**:
+  ```json
+  {
+    "kitchen_id": 1,
+    "food_item_id": 1,
+    "quantity_kg": 30.0,
+    "estimated_meals": 75,
+    "expires_at": "2026-09-30T00:00:00Z",
+    "safe_temp_celsius": 65.0
+  }
+  ```
+
 ### `GET /redistribution/surplus`
 Lists all active surplus lots ready for NGO pairing.
 
@@ -191,8 +205,26 @@ Pairs surplus lot with selected NGO. Enforces concurrency lock to prevent duplic
   ```
 - **Response `409 Conflict`**: If lot is already claimed.
 
+### `POST /redistribution/requests/{request_id}/respond` (Alias: `/redistribution/respond/{request_id}`)
+NGO partner accepts or declines allocated surplus lot.
+- **Request Body**:
+  ```json
+  {
+    "accept": true,
+    "rejection_reason": null
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "message": "Offer accepted by NGO partner. Ready for logistics fleet assignment.",
+    "request_id": 1,
+    "status": "SCHEDULED_FOR_PICKUP"
+  }
+  ```
+
 ### `POST /logistics/routes/optimize` (Alias: `/logistics/optimize`)
-Solves multi-stop Capacitated Vehicle Routing Problem (CVRPTW) via Google OR-Tools.
+Solves multi-stop Capacitated Vehicle Routing Problem (CVRPTW) via Google OR-Tools. Newly generated routes are initialized in `PLANNED` status.
 - **Request Body**:
   ```json
   {
@@ -201,10 +233,14 @@ Solves multi-stop Capacitated Vehicle Routing Problem (CVRPTW) via Google OR-Too
     "vehicle_capacity_kg": 500.0
   }
   ```
-- **Response `200 OK`**: Returns route code, distance, duration, and ordered waypoints.
+- **Response `200 OK`**: Returns route code, distance, duration, waypoints, and initial status `PLANNED`.
+
+### `POST /logistics/routes/{route_id}/advance`
+Advances route lifecycle state: `PLANNED -> IN_TRANSIT -> COMPLETED`.
+Enforces that all delivery stops on the route must be verified via OTP Proof-of-Delivery before transitioning to `COMPLETED`.
 
 ### `POST /logistics/deliveries/{delivery_id}/confirm`
-Digital Proof of Delivery (PoD) handover verification.
+Digital Proof of Delivery (PoD) handover verification with OTP and temperature validation.
 - **Request Body**:
   ```json
   {
@@ -214,6 +250,7 @@ Digital Proof of Delivery (PoD) handover verification.
     "proof_of_delivery_image": "/uploads/pod/sig.png"
   }
   ```
+- **Validation**: Enforces 4-6 digit numeric OTP and temperature threshold (-25°C to 100°C). Automatically advances linked route to `IN_TRANSIT` if currently `PLANNED`.
 
 ---
 

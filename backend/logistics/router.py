@@ -1,6 +1,7 @@
 from typing import List, Optional, Dict, Any
 import json
 import random
+import re
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -152,8 +153,8 @@ def optimize_route(
         total_distance_km=route_plan["total_distance_km"],
         estimated_duration_min=route_plan["estimated_duration_min"],
         waypoints_geojson=json.dumps(formatted_waypoints),
-        status="IN_TRANSIT",
-        started_at=now_utc
+        status="PLANNED",
+        started_at=None
     )
     db.add(new_route)
     db.flush()
@@ -208,17 +209,26 @@ def advance_route_status(
     if route.status == "PLANNED":
         route.status = "IN_TRANSIT"
         route.started_at = now_utc
-    elif route.status == "IN_TRANSIT":
-        route.status = "COMPLETED"
-        route.completed_at = now_utc
-        # Mark all pending deliveries as delivered
+        # Advance associated requests from ASSIGNED_TO_ROUTE to PICKED_UP
         deliveries = db.query(Delivery).filter(Delivery.route_id == route_id).all()
         for d in deliveries:
-            if d.status != "DELIVERED":
-                d.status = "DELIVERED"
-                d.delivered_time = now_utc
-                if d.request:
-                    d.request.status = "DELIVERED"
+            if d.request and d.request.status == "ASSIGNED_TO_ROUTE":
+                d.request.status = "PICKED_UP"
+    elif route.status == "IN_TRANSIT":
+        # Require all deliveries to be confirmed via OTP before completing the route
+        pending_deliveries = db.query(Delivery).filter(
+            Delivery.route_id == route_id,
+            Delivery.status != "DELIVERED"
+        ).all()
+        if pending_deliveries:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot complete route #{route_id}: {len(pending_deliveries)} delivery stop(s) are still pending Proof of Delivery (OTP) confirmation."
+            )
+        route.status = "COMPLETED"
+        route.completed_at = now_utc
+    elif route.status == "COMPLETED":
+        raise HTTPException(status_code=400, detail="Route has already been completed.")
 
     db.commit()
     db.refresh(route)
@@ -262,12 +272,31 @@ def confirm_delivery(
     if delivery.status == "DELIVERED":
         raise HTTPException(status_code=400, detail="Delivery has already been confirmed.")
 
+    otp = (confirm_in.verification_otp or "").strip()
+    if not re.match(r"^\d{4,6}$", otp):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid verification OTP: Must be a valid 4 to 6 digit numerical code."
+        )
+
+    if confirm_in.temperature_at_delivery is not None:
+        if confirm_in.temperature_at_delivery < -25.0 or confirm_in.temperature_at_delivery > 100.0:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid food temperature reading: Measured temperature must be within realistic cold-chain or hot-holding limits (-25°C to 100°C)."
+            )
+
     now_utc = datetime.now(timezone.utc)
     delivery.status = "DELIVERED"
     delivery.delivered_time = now_utc
     delivery.recipient_sign_name = confirm_in.recipient_sign_name
     delivery.temperature_at_delivery = confirm_in.temperature_at_delivery
     delivery.proof_of_delivery_image = confirm_in.proof_of_delivery_image
+
+    # If route is in PLANNED state, auto-advance to IN_TRANSIT
+    if delivery.route and delivery.route.status == "PLANNED":
+        delivery.route.status = "IN_TRANSIT"
+        delivery.route.started_at = now_utc
 
     # Update associated RedistributionRequest
     s_req = db.query(RedistributionRequest).filter(RedistributionRequest.id == delivery.request_id).first()

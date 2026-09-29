@@ -86,6 +86,15 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab: _activeTab }) => {
   const [customPassword, setCustomPassword] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
+  const [demoMode, setDemoMode] = useState<boolean>(() => typeof window !== 'undefined' && localStorage.getItem('reserve_demo_mode') === 'true');
+
+  const toggleDemoMode = () => {
+    const nextVal = !demoMode;
+    setDemoMode(nextVal);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('reserve_demo_mode', String(nextVal));
+    }
+  };
 
   useEffect(() => {
     const initAuth = async () => {
@@ -201,9 +210,23 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab: _activeTab }) => {
         </div>
 
         {/* Right Controls & Profile */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Live Stack / Demo Mode Toggle */}
+          <button
+            onClick={toggleDemoMode}
+            title="Toggle between Live Production Stack and Simulated Offline Demo Mode"
+            className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono border transition ${
+              demoMode
+                ? 'bg-amber-950/50 border-amber-500/50 text-amber-300 hover:bg-amber-900/50 shadow-sm shadow-amber-500/10'
+                : 'bg-emerald-950/40 border-emerald-500/30 text-emerald-400 hover:bg-emerald-900/30'
+            }`}
+          >
+            <span className={`h-2 w-2 rounded-full ${demoMode ? 'bg-amber-400' : 'bg-emerald-400 pulse-beacon'}`}></span>
+            <span>{demoMode ? 'Mode: Simulated Demo' : 'Mode: Live Stack'}</span>
+          </button>
+
           {/* Telemetry pill */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
             <Radio className="h-3.5 w-3.5 animate-pulse text-emerald-400" />
             <span>IoT Gateway: Live (12ms)</span>
           </div>
