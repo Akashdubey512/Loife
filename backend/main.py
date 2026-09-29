@@ -1,12 +1,14 @@
 import os
 import json
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from backend.core.config import settings
-from backend.core.database import Base, engine
+from backend.core.database import Base, engine, get_db
 from backend.services.seed_service import seed_database
 
 # Import routers
@@ -30,21 +32,26 @@ from backend.analytics.router import router as analytics_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize DB tables and seed data
+    # Initialize DB tables
     Base.metadata.create_all(bind=engine)
-    try:
-        seed_database()
-    except Exception as e:
-        print(f"Warning: Database seeding caught: {e}")
+    # Automatic seeding is strictly disabled in production.
+    # In development, it requires explicit opt-in via SEED_DEMO_DATA=true or CLI: python -m backend.services.seed_service
+    if settings.ENVIRONMENT != "production" and os.getenv("SEED_DEMO_DATA", "false").lower() in ("true", "1", "yes"):
+        try:
+            seed_database()
+        except Exception as e:
+            print(f"Notice: Database demo seeding caught: {e}")
     yield
+
+is_production = (settings.ENVIRONMENT or "development").lower() == "production"
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
     description="Enterprise AI-Powered Food Waste Reduction & Sustainable Redistribution Platform (SIH 2026)",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    docs_url=f"{settings.API_V1_STR}/docs",
-    redoc_url=f"{settings.API_V1_STR}/redoc",
+    openapi_url=None if is_production else f"{settings.API_V1_STR}/openapi.json",
+    docs_url=None if is_production else f"{settings.API_V1_STR}/docs",
+    redoc_url=None if is_production else f"{settings.API_V1_STR}/redoc",
     lifespan=lifespan
 )
 
@@ -53,8 +60,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With", "Origin"],
 )
 
 # Mount all 17 routers under /api/v1
@@ -78,11 +85,32 @@ app.include_router(analytics_router, prefix=f"{settings.API_V1_STR}/analytics", 
 
 @app.get("/")
 def root():
-    return {
+    resp = {
         "platform": settings.PROJECT_NAME,
         "status": "OPERATIONAL",
-        "api_docs": f"{settings.API_V1_STR}/docs",
         "version": "1.0.0"
+    }
+    if (settings.ENVIRONMENT or "development").lower() != "production":
+        resp["api_docs"] = f"{settings.API_V1_STR}/docs"
+    return resp
+
+@app.get("/health", status_code=200)
+def health_check(db: Session = Depends(get_db)):
+    """
+    Lightweight, unauthenticated health check endpoint for container orchestrators and load balancers.
+    Verifies application and database connectivity without leaking sensitive configuration or credentials.
+    """
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"status": "UNHEALTHY", "database": "unavailable"}
+        )
+    return {
+        "status": "HEALTHY",
+        "database": "connected",
+        "environment": settings.ENVIRONMENT
     }
 
 # WebSockets Telemetry Manager

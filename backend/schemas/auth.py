@@ -19,7 +19,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     full_name: str
-    role: Optional[str] = "KITCHEN_MANAGER"
+    role: Optional[str] = None
     organization_id: Optional[int] = None
     phone_number: Optional[str] = None
 

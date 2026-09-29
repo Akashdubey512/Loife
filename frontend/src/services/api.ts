@@ -21,6 +21,34 @@ apiClient.interceptors.request.use((config) => {
   return config;
 }, (error) => Promise.reject(error));
 
+// Centralized response interceptor for session expiration & 401 handling
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Only handle HTTP 401 Unauthorized errors
+    if (error.response && error.response.status === 401) {
+      const requestUrl = error.config?.url || '';
+      const isLoginRequest = requestUrl.includes('/auth/login');
+
+      // Do not clear tokens or dispatch logout on failed login credential attempts
+      if (!isLoginRequest) {
+        localStorage.removeItem('reserve_token');
+
+        // Notify application components via custom window event
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('reserveai:unauthorized'));
+
+          // Redirect to login only if not already on /login or root
+          if (window.location && window.location.pathname !== '/login' && window.location.pathname !== '/') {
+            window.location.href = '/login';
+          }
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const apiService = {
   // Authentication & Session
   login: async (username: string, password: string): Promise<{ access_token: string; token_type: string; user: AuthUser }> => {

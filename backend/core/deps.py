@@ -14,12 +14,7 @@ def get_current_user(
     db: Session = Depends(get_db),
     token: Optional[str] = Depends(oauth2_scheme)
 ) -> User:
-    # If no token provided during dev, fallback to first active user
     if not token:
-        if settings.ENVIRONMENT == "development":
-            user = db.query(User).filter(User.is_active == True).first()
-            if user:
-                return user
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication credentials not provided",

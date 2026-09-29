@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union, Optional
@@ -15,14 +16,20 @@ def hash_password(password: str) -> str:
     return f"{salt}${key.hex()}"
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plain password against the stored salt+hash."""
+    """Verify a plain password against the stored salt+hash using constant-time comparison."""
+    if not plain_password or not hashed_password or not isinstance(hashed_password, str):
+        return False
     try:
-        salt, key_hex = hashed_password.split("$")
+        parts = hashed_password.split("$")
+        if len(parts) != 2:
+            return False
+        salt, key_hex = parts
+        if not salt or not key_hex:
+            return False
         check_key = hashlib.pbkdf2_hmac('sha256', plain_password.encode('utf-8'), salt.encode('utf-8'), 100000)
-        return check_key.hex() == key_hex
+        return hmac.compare_digest(check_key.hex(), key_hex)
     except Exception:
-        # Fallback check for plain dev passwords
-        return plain_password == hashed_password
+        return False
 
 def create_access_token(subject: Union[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     if expires_delta:

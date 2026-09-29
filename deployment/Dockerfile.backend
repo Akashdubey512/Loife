@@ -9,6 +9,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Create unprivileged application user
+RUN groupadd -g 1001 appgroup && \
+    useradd -u 1001 -g appgroup -s /bin/bash -m appuser
+
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -17,6 +21,11 @@ COPY ml/ ./ml/
 COPY cv/ ./cv/
 COPY iot/ ./iot/
 COPY logistics/ ./logistics/
+
+# Assign ownership of application directory to unprivileged user
+RUN chown -R appuser:appgroup /app
+
+USER appuser
 
 EXPOSE 8000
 

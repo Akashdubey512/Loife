@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend.core.database import get_db
-from backend.core.deps import get_current_user
+from backend.core.deps import get_current_user, require_roles, check_tenant_access
 from backend.models.entities import RedistributionRequest, NGOPartner, Kitchen, FoodItem, User
 from backend.schemas.redistribution import (
     RedistributionRequestCreate, RedistributionRequestOut,
@@ -33,7 +33,15 @@ def list_surplus(
 ):
     query = db.query(RedistributionRequest)
     if kitchen_id:
+        kitchen = db.query(Kitchen).filter(Kitchen.id == kitchen_id).first()
+        if kitchen:
+            check_tenant_access(current_user, kitchen.organization_id)
         query = query.filter(RedistributionRequest.kitchen_id == kitchen_id)
+    elif current_user.role != "SUPER_ADMIN" and current_user.organization_id:
+        query = query.join(Kitchen).filter(Kitchen.organization_id == current_user.organization_id)
+    elif current_user.role != "SUPER_ADMIN" and not current_user.organization_id:
+        return []
+
     if status:
         query = query.filter(RedistributionRequest.status == status)
 
@@ -63,8 +71,13 @@ def list_surplus(
 def post_surplus(
     item_in: RedistributionRequestCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_roles(["KITCHEN_MANAGER", "ORG_ADMIN", "SUPER_ADMIN"]))
 ):
+    kitchen = db.query(Kitchen).filter(Kitchen.id == item_in.kitchen_id).first()
+    if not kitchen:
+        raise HTTPException(status_code=404, detail="Kitchen not found")
+    check_tenant_access(current_user, kitchen.organization_id)
+
     req = RedistributionRequest(
         kitchen_id=item_in.kitchen_id,
         food_item_id=item_in.food_item_id,
@@ -157,15 +170,25 @@ def claim_surplus(
     request_id: int,
     ngo_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_roles(["NGO_REP", "KITCHEN_MANAGER", "ORG_ADMIN", "SUPER_ADMIN"]))
 ):
     """
     Claims/Pairs a surplus lot with an eligible NGO partner.
-    Guarantees duplicate allocation prevention and verified partner status.
+    Guarantees duplicate allocation prevention, role authorization, tenant isolation,
+    and verified partner status.
     """
     surplus = db.query(RedistributionRequest).filter(RedistributionRequest.id == request_id).with_for_update().first() if db.bind.dialect.name == "postgresql" else db.query(RedistributionRequest).filter(RedistributionRequest.id == request_id).first()
     if not surplus:
         raise HTTPException(status_code=404, detail="Surplus request not found")
+
+    # Tenant boundary enforcement: prevent cross-organization claims
+    kitchen = db.query(Kitchen).filter(Kitchen.id == surplus.kitchen_id).first()
+    if kitchen and current_user.role != "SUPER_ADMIN":
+        if not current_user.organization_id or current_user.organization_id != kitchen.organization_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Cross-organization surplus claim is forbidden."
+            )
 
     # Duplicate allocation prevention
     if surplus.status != "POSTED":
@@ -199,12 +222,20 @@ def respond_to_surplus_offer(
     accepted: bool,
     rejection_reason: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_roles(["NGO_REP", "KITCHEN_MANAGER", "ORG_ADMIN", "SUPER_ADMIN"]))
 ):
     """NGO partner confirms acceptance or rejection of matched surplus lot."""
     surplus = db.query(RedistributionRequest).filter(RedistributionRequest.id == request_id).first()
     if not surplus:
         raise HTTPException(status_code=404, detail="Surplus request not found")
+
+    kitchen = db.query(Kitchen).filter(Kitchen.id == surplus.kitchen_id).first()
+    if kitchen and current_user.role != "SUPER_ADMIN":
+        if not current_user.organization_id or current_user.organization_id != kitchen.organization_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Cross-organization surplus access is forbidden."
+            )
 
     if surplus.status != "MATCHED":
         raise HTTPException(status_code=400, detail=f"Request status is '{surplus.status}'. Only MATCHED requests can be accepted or rejected.")

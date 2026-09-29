@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta, timezone
 from sqlalchemy.orm import Session
 
+from backend.core.config import settings
 from backend.core.database import SessionLocal, Base, engine
 from backend.core.security import hash_password
 from backend.models.entities import (
@@ -9,7 +10,17 @@ from backend.models.entities import (
     Route, Alert, MachineEvent
 )
 
-def seed_database():
+def seed_database(force: bool = False):
+    """
+    Seeds initial realistic institutional fixtures and personas for development/demo.
+    Strictly prohibited in production unless explicit non-production flag is provided.
+    """
+    env = getattr(settings, "ENVIRONMENT", "development").lower()
+    if env == "production" and not force:
+        raise RuntimeError(
+            "Automatic or demo database seeding is strictly prohibited in production environment."
+        )
+
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
@@ -273,3 +284,8 @@ def seed_database():
 
     finally:
         db.close()
+
+if __name__ == "__main__":
+    print("Initiating explicit development database seeding...")
+    seed_database(force=True)
+    print("Development database seeding completed successfully.")
