@@ -1,0 +1,6 @@
+/* Custom animations for reServe AI */
+@keyframes dash {
+  to {
+    stroke-dashoffset: -100;
+  }
+}

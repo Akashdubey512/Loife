@@ -1,0 +1,4 @@
+# reServe AI - Top Level Docker Compose
+# Run with: docker compose up -d --build
+include:
+  - path: deployment/docker-compose.yml

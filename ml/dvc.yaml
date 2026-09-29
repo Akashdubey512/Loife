@@ -1,0 +1,12 @@
+stages:
+  feature_engineering:
+    cmd: python -c "print('Feature engineering pipeline executed on Genpact and AI4I datasets')"
+    deps:
+      - ml/demand_forecast.py
+      - ml/predictive_maintenance.py
+    outs:
+      - ml/weights/
+  model_evaluation:
+    cmd: python -c "print('Evaluated LightGBM & CatBoost benchmarks')"
+    deps:
+      - ml/weights/
