@@ -192,8 +192,8 @@ def claim_surplus(
                 detail="Cross-organization surplus claim is forbidden."
             )
 
-    # Duplicate allocation prevention
-    if surplus.status != "POSTED":
+    # Duplicate allocation prevention / re-assignment
+    if surplus.status not in ("POSTED", "MATCHED"):
         raise HTTPException(
             status_code=409,
             detail=f"Surplus lot #{request_id} is already in '{surplus.status}' state and cannot be claimed again."

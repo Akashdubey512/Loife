@@ -44,7 +44,11 @@ def get_demand_forecast(
 
     items_list = []
     if existing_preds:
-        for p in existing_preds:
+        seen_ids = set()
+        for p in reversed(existing_preds):
+            if p.food_item_id in seen_ids:
+                continue
+            seen_ids.add(p.food_item_id)
             food = db.query(FoodItem).filter(FoodItem.id == p.food_item_id).first()
             items_list.append(DemandForecastItem(
                 food_item_id=p.food_item_id,
@@ -55,6 +59,7 @@ def get_demand_forecast(
                 surplus_risk_probability=p.surplus_risk_probability,
                 model_version=p.model_version
             ))
+        items_list.reverse()
     else:
         # Generate fresh forecast using heuristic demand engine (Genpact dataset-compatible schema)
         food_items = db.query(FoodItem).all()
@@ -186,19 +191,35 @@ def predict_demand(
     food = db.query(FoodItem).filter(FoodItem.id == req.food_item_id).first()
     food_name = food.name if food else f"Food Item #{req.food_item_id}"
 
-    # 5. Persist prediction
-    new_pred = DemandPrediction(
-        kitchen_id=req.kitchen_id,
-        food_item_id=req.food_item_id,
-        prediction_date=target_date,
-        meal_slot=req.meal_slot or "LUNCH",
-        expected_demand_kg=predicted_demand,
-        confidence_score=pred_result["confidence_score"],
-        recommended_production_kg=net_prep,
-        surplus_risk_probability=pred_result["surplus_risk_probability"],
-        model_version=pred_result.get("model_version", "heuristic-v1.4")
-    )
-    db.add(new_pred)
+    # 5. Persist or update prediction
+    target_slot = req.meal_slot or "LUNCH"
+    existing_p = db.query(DemandPrediction).filter(
+        DemandPrediction.kitchen_id == req.kitchen_id,
+        DemandPrediction.food_item_id == req.food_item_id,
+        DemandPrediction.prediction_date == target_date,
+        DemandPrediction.meal_slot == target_slot
+    ).first()
+
+    if existing_p:
+        existing_p.expected_demand_kg = predicted_demand
+        existing_p.confidence_score = pred_result["confidence_score"]
+        existing_p.recommended_production_kg = net_prep
+        existing_p.surplus_risk_probability = pred_result["surplus_risk_probability"]
+        existing_p.model_version = pred_result.get("model_version", "heuristic-v1.4")
+        new_pred = existing_p
+    else:
+        new_pred = DemandPrediction(
+            kitchen_id=req.kitchen_id,
+            food_item_id=req.food_item_id,
+            prediction_date=target_date,
+            meal_slot=target_slot,
+            expected_demand_kg=predicted_demand,
+            confidence_score=pred_result["confidence_score"],
+            recommended_production_kg=net_prep,
+            surplus_risk_probability=pred_result["surplus_risk_probability"],
+            model_version=pred_result.get("model_version", "heuristic-v1.4")
+        )
+        db.add(new_pred)
     db.commit()
     db.refresh(new_pred)
 

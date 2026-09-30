@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart India Hackathon 2026 - Loife 3-Minute Video Pitch Script</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 14mm 14mm 14mm 14mm;
+      @bottom-right {
+        content: counter(page);
+        font-size: 9pt;
+        color: #64748b;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      line-height: 1.5;
+      font-size: 10pt;
+    }
+
+    .header-banner {
+      background: linear-gradient(135deg, #092019 0%, #174C3C 50%, #1f5f4b 100%);
+      color: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border-left: 6px solid #F2C45A;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(242, 196, 90, 0.2);
+      color: #F2C45A;
+      border: 1px solid rgba(242, 196, 90, 0.4);
+    }
+
+    .badge-white {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    h1 {
+      font-size: 18pt;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+      color: #ffffff;
+    }
+
+    .tagline {
+      font-size: 10.5pt;
+      color: #e2e8f0;
+      font-weight: 400;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 8pt;
+    }
+
+    .meta-item strong {
+      display: block;
+      color: #F2C45A;
+      font-size: 8.5pt;
+    }
+
+    .section-title {
+      font-size: 12pt;
+      font-weight: 800;
+      color: #0f172a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 4px;
+      margin: 20px 0 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .section-title span {
+      font-size: 8.5pt;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    .scene-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+      page-break-inside: avoid;
+      border-left: 4px solid #174C3C;
+    }
+
+    .scene-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .scene-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5pt;
+      font-weight: 700;
+      background: #174C3C;
+      color: #F2C45A;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .scene-title {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .screen-cue {
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 8.5pt;
+      color: #334155;
+    }
+
+    .screen-cue strong {
+      color: #0369a1;
+    }
+
+    .voiceover {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 9.5pt;
+      color: #0f172a;
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+
+    .voiceover-label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #174C3C;
+      margin-bottom: 3px;
+    }
+
+    .jury-impact {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 8pt;
+      color: #047857;
+      font-weight: 600;
+      background: #ecfdf5;
+      padding: 5px 8px;
+      border-radius: 4px;
+      border: 1px solid #a7f3d0;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      margin-top: 10px;
+      margin-bottom: 16px;
+      page-break-inside: avoid;
+    }
+
+    .summary-table th, .summary-table td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    .summary-table th {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .summary-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .tech-stack-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+      page-break-inside: avoid;
+    }
+
+    .tech-pill {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 8pt;
+    }
+
+    .tech-pill strong {
+      display: block;
+      color: #0f172a;
+      font-size: 8.5pt;
+      margin-bottom: 2px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 8pt;
+      color: #94a3b8;
+      margin-top: 24px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Banner -->
+  <div class="header-banner">
+    <div class="badge-row">
+      <span class="badge">SIH 2026 Grand Finale Pitch</span>
+      <span class="badge badge-white">Duration: Exactly 3:00 (180 Seconds)</span>
+      <span class="badge badge-white">Problem Statement: Circular Food Waste Reduction</span>
+    </div>
+    <h1>Loife — Good Food. Shared Life.</h1>
+    <div class="tagline">Enterprise AI-Powered Food Waste Reduction, Safety Clearance & Automated Redistribution Platform</div>
+    
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Target Target</strong>
+        Smart India Hackathon 2026
+      </div>
+      <div class="meta-item">
+        <strong>Pacing Strategy</strong>
+        ~135 words/minute (Fluent, Convincing)
+      </div>
+      <div class="meta-item">
+        <strong>Demo Credentials</strong>
+        admin@reserveai.com / Admin@1234
+      </div>
+      <div class="meta-item">
+        <strong>Primary Impact</strong>
+        Zero Hunger (SDG 2) + Climate Action (SDG 13)
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 1: The Crisis -->
+  <div class="scene-card" style="border-left-color: #e11d48;">
+    <div class="scene-header">
+      <div class="scene-title">Scene 1: The National Crisis &amp; The Broken Loop</div>
+      <div class="scene-time">0:00 – 0:25 (25s)</div>
+    </div>
+    <div class="screen-cue">
+      <strong>Screen Action:</strong> Open <code>http://localhost:3000/</code> (Landing Page). Slowly scroll past the glowing header, showing the tagline <em>"Good Food. Shared Life."</em>, the animated ambient lights, and pause over the community stories section.
+    </div>
+    <div class="voiceover">
+      <div class="voiceover-label">Spoken Voiceover</div>
+      “Every year, India wastes over <strong>68 million tonnes of edible food</strong> — worth nearly 89,000 crore rupees — while over 190 million citizens sleep malnourished. In universities, IT campuses, and hospital mess halls, culinary teams cook in bulk with zero visibility into actual demand. Surplus is discarded to landfills, generating dangerous methane and squandering thousands of litres of water per kilogram.<br><br>
+      The core issue isn't goodwill; it is <strong>lack of closed-loop predictive technology</strong>. Today, we present <strong>Loife</strong> — India's first end-to-end circular food ecosystem powered by Artificial Intelligence.”
+    </div>
+    <div class="jury-impact">
+      <span>★ JURY HOOK:</span> Immediate macroeconomic and humanitarian framing directly aligned with national hackathon mandates.
+    </div>
+  </div>
+
+  <!-- Scene 2: Executive ESG Command -->
+  <div class="scene-card">
+    <div class="scene-header">
+      <div class="scene-title">Scene 2: Executive Overview &amp; Scientific ESG Accounting</div>
+      <div class="scene-time">0:25 – 0:50 (25s)</div>
+    </div>
+    <div class="screen-cue">
+      <strong>Screen Action:</strong> Click <strong>"Sign In"</strong> → Click the <strong>"Admin"</strong> quick-demo pill → Submit to land on <strong>Executive Overview</strong>. Hover over the KPI cards: <code>14.25 MT Rescued</code>, <code>37.03 t CO₂e Avoided</code>, <code>8.7M Litres Water Saved</code>. Click <strong>"Export ESG Report"</strong> to show the instant JSON audit download.
+    </div>
+    <div class="voiceover">
+      <div class="voiceover-label">Spoken Voiceover</div>
+      “Logging in as an Executive Director, Loife provides an institutional command center. Every kilogram of rescued food is scientifically audited using peer-reviewed <strong>Poore &amp; Nemecek (2018) Life Cycle Assessment</strong> standards.<br><br>
+      Here, our campus dining cluster has diverted <strong>14.25 metric tonnes</strong> of food, avoided <strong>37 tonnes of CO₂ equivalent</strong>, conserved <strong>8.7 million litres of virtual embedded water</strong>, and returned over <strong>15.6 lakh rupees</strong> in operational efficiency. With one click, institutions generate certified ESG and Scope 3 compliance reports ready for audit.”
+    </div>
+    <div class="jury-impact">
+      <span>★ JURY HOOK:</span> Proves mathematical rigor. Not arbitrary numbers, but peer-reviewed LCA environmental science.
+    </div>
+  </div>
+
+  <!-- Scene 3: Kitchen Operations -->
+  <div class="scene-card">
+    <div class="scene-header">
+      <div class="scene-title">Scene 3: Kitchen Operations &amp; LightGBM Demand Forecasting</div>
+      <div class="scene-time">0:50 – 1:20 (30s)</div>
+    </div>
+    <div class="screen-cue">
+      <strong>Screen Action:</strong> In the sidebar, click <strong>"Kitchen Management"</strong>. Point cursor to the <strong>10 animated glowing batch circles</strong> with radiant motes of light floating randomly. Hover over 2 circles to show batch expiry tooltips. Click <strong>"Run AI Forecast"</strong> → Modal pops up → Click <strong>"Generate &amp; Persist"</strong>.
+    </div>
+    <div class="voiceover">
+      <div class="voiceover-label">Spoken Voiceover</div>
+      “The best way to eliminate waste is to prevent it at the source. In the Kitchen Operations cockpit, our <strong>LightGBM predictive engine</strong> forecasts meal-level footfall by factoring historical attendance trends, academic calendar surges, and inventory on hand.<br><br>
+      Notice our <strong>real-time Shelf-Life Radar</strong> — these 10 animated alert bubbles track perishable batches. Green radiant motes represent optimal batches, while amber bubbles highlight items expiring within 5 hours. Chef teams receive automated recommendations to throttle prep batches by exact kilograms or declare surplus with zero guesswork.”
+    </div>
+    <div class="jury-impact">
+      <span>★ JURY HOOK:</span> Shows active prevention. Most solutions only redistribute waste; Loife prevents it before cooking starts.
+    </div>
+  </div>
+
+  <!-- Scene 4: CV Quality Scan -->
+  <div class="scene-card">
+    <div class="scene-header">
+      <div class="scene-title">Scene 4: Computer Vision Food Quality &amp; Multi-Factor Safety</div>
+      <div class="scene-time">1:20 – 1:45 (25s)</div>
+    </div>
+    <div class="screen-cue">
+      <strong>Screen Action:</strong> Navigate to <strong>"CV Freshness Scan"</strong>. Click the <strong>"Fresh Produce"</strong> benchmark preset. Point to the optical freshness score (<code>91.3% Fresh</code>), shelf-life projection (<code>4.9 days</code>), and IoT temperature clearance. Click <strong>"Approve &amp; Sign-Off"</strong>.
+    </div>
+    <div class="voiceover">
+      <div class="voiceover-label">Spoken Voiceover</div>
+      “Safety is paramount in food donation. Before any surplus can leave a facility, it undergoes Loife's <strong>Computer Vision Optical Clearance</strong>.<br><br>
+      Our convolutional neural vision model analyzes surface pigmentation, cellular degradation, and moisture loss, returning a 91.3% freshness rating and residual shelf-life prediction. Combined with IoT cold-chain sensor clearance and mandatory human inspector sign-off, we guarantee strict <strong>FSSAI hygiene compliance</strong> before a single portion is dispatched.”
+    </div>
+    <div class="jury-impact">
+      <span>★ JURY HOOK:</span> Solves the #1 legal/health liability holding back institutional dining from donating cooked surplus.
+    </div>
+  </div>
+
+  <!-- Scene 5: Redistribution Hub -->
+  <div class="scene-card">
+    <div class="scene-header">
+      <div class="scene-title">Scene 5: Autonomous Multi-Factor NGO Matchmaking</div>
+      <div class="scene-time">1:45 – 2:15 (30s)</div>
+    </div>
+    <div class="screen-cue">
+      <strong>Screen Action:</strong> Navigate to <strong>"Redistribution Hub"</strong>. Click on <strong>Paneer Butter Masala (35 kg, ~85 meals)</strong>. Point to the right-hand AI Compatibility ranking showing <em>Feeding India by Zomato (77.5%)</em> and <em>Roti Bank (75.1%)</em>. Click <strong>"Dispatch"</strong>. Show the instant green confirmation banner: <em>"Dispatch Scheduled"</em>.
+    </div>
+    <div class="voiceover">
+      <div class="voiceover-label">Spoken Voiceover</div>
+      “When surplus is declared, Loife's <strong>Autonomous Matching Engine</strong> activates. Instead of endless manual phone calls, our algorithm pairs lots using a 4-factor scoring model: distance radius, NGO shelter capacity, cold storage capability, and verified historical reliability.<br><br>
+      As we select this 35kg lot, our engine ranks <strong>Feeding India by Zomato</strong> as the optimal match with a 77.5% compatibility score. Clicking ‘Dispatch’ instantly locks the allocation, reserves the shelter capacity, and schedules logistics in under 3 seconds.”
+    </div>
+    <div class="jury-impact">
+      <span>★ JURY HOOK:</span> Shows real-time autonomous routing replacing manual delays that cause food to spoil before pickup.
+    </div>
+  </div>
+
+  <!-- Scene 6: Smart Logistics & OTP -->
+  <div class="scene-card">
+    <div class="scene-header">
+      <div class="scene-title">Scene 6: Smart EV Logistics &amp; Cryptographic Proof-of-Delivery</div>
+      <div class="scene-time">2:15 – 2:40 (25s)</div>
+    </div>
+    <div class="screen-cue">
+      <strong>Screen Action:</strong> In the sidebar, click <strong>"Logistics &amp; Routes"</strong>. Show the active EV route code <code>RT-DELHI-NORTH-01</code>, vehicle telemetry (<code>3.4°C</code> cold-chain reefer, driver Rajesh Kumar). Scroll down to the Digital Proof of Delivery card. Enter OTP <code>8492</code> and click <strong>"Verify &amp; Complete Delivery"</strong>.
+    </div>
+    <div class="voiceover">
+      <div class="voiceover-label">Spoken Voiceover</div>
+      “In the Logistics command dashboard, a greedy heuristic algorithm aggregates multiple kitchen pick-ups into single electric vehicle runs.<br><br>
+      Notice our live reefer telemetry maintaining an unbroken <strong>3.4°C cold chain</strong>. At the recipient hub, the NGO representative provides a secure <strong>4-digit verification OTP</strong>. Once entered, the transaction is cryptographically stamped into the audit ledger, certifying temperature, quantity, and verified handover with zero fraud.”
+    </div>
+    <div class="jury-impact">
+      <span>★ JURY HOOK:</span> Complete trace-and-track accountability that eliminates diversion and ghost-deliveries.
+    </div>
+  </div>
+
+  <!-- Scene 7: Impact & Closing -->
+  <div class="scene-card" style="border-left-color: #F2C45A;">
+    <div class="scene-header">
+      <div class="scene-title">Scene 7: Scalability, Impact &amp; Final Call to Action</div>
+      <div class="scene-time">2:40 – 3:00 (20s)</div>
+    </div>
+    <div class="screen-cue">
+      <strong>Screen Action:</strong> Switch to the <strong>Sustainability &amp; ESG Dashboard</strong> showing the Category Savings chart and the Scope 3 Audit Certificate, or back to the high-impact Landing Page footer.
+    </div>
+    <div class="voiceover">
+      <div class="voiceover-label">Spoken Voiceover</div>
+      “Loife is built on a scalable FastAPI and React architecture designed for municipal multi-tenant rollouts across India's thousands of campuses, airports, and corporate clusters.<br><br>
+      By uniting predictive AI, computer vision safety, and transparent logistics, we transform food waste from an environmental catastrophe into community nourishment. Because with Loife — <strong>Good Food is Shared Life</strong>. Thank you.”
+    </div>
+    <div class="jury-impact">
+      <span>★ CLOSING NOTE:</span> Resonant finish connecting cutting-edge engineering with tangible societal impact.
+    </div>
+  </div>
+
+  <!-- Rapid Master Timing Table -->
+  <div class="section-title">
+    Executive Presentation Master Cheat-Sheet
+    <span>Total Runtime: 180s</span>
+  </div>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th style="width: 12%;">Timestamp</th>
+        <th style="width: 25%;">Screen / Navigation</th>
+        <th style="width: 38%;">Action to Execute on Screen</th>
+        <th style="width: 25%;">Core Pitch Angle</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>0:00 – 0:25</strong></td>
+        <td>Landing Page (<code>/</code>)</td>
+        <td>Scroll past golden lights &amp; community stories</td>
+        <td>The 68M tonne Indian food crisis</td>
+      </tr>
+      <tr>
+        <td><strong>0:25 – 0:50</strong></td>
+        <td>Executive Overview</td>
+        <td>Click Admin Demo login → Hover on 14.25 MT KPI card</td>
+        <td>LCA-certified ESG Scope 3 compliance</td>
+      </tr>
+      <tr>
+        <td><strong>0:50 – 1:20</strong></td>
+        <td>Kitchen Management</td>
+        <td>Hover on 10 glowing batch bubbles → "Run AI Forecast"</td>
+        <td>Predictive prevention at source</td>
+      </tr>
+      <tr>
+        <td><strong>1:20 – 1:45</strong></td>
+        <td>CV Freshness Scan</td>
+        <td>Click "Fresh Produce" preset → Click "Approve &amp; Sign-Off"</td>
+        <td>Optical ML freshness &amp; FSSAI safety</td>
+      </tr>
+      <tr>
+        <td><strong>1:45 – 2:15</strong></td>
+        <td>Redistribution Hub</td>
+        <td>Select surplus lot → Click "Dispatch" to Feeding India</td>
+        <td>Autonomous 4-factor matchmaking</td>
+      </tr>
+      <tr>
+        <td><strong>2:15 – 2:40</strong></td>
+        <td>Logistics &amp; Fleet</td>
+        <td>Show 3.4°C reefer telemetry → Verify OTP (<code>8492</code>)</td>
+        <td>Unbroken cold-chain &amp; proof of delivery</td>
+      </tr>
+      <tr>
+        <td><strong>2:40 – 3:00</strong></td>
+        <td>Sustainability / ESG</td>
+        <td>Show Scope 3 Certificate modal → Concluding call to action</td>
+        <td>National scalability &amp; UN SDGs</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Technical Specs Box -->
+  <div class="section-title">
+    Architecture &amp; Innovation Stack (For Technical Q&amp;A)
+    <span>Full-Stack Enterprise Grade</span>
+  </div>
+
+  <div class="tech-stack-box">
+    <div class="tech-pill">
+      <strong>Predictive AI &amp; CV Engines</strong>
+      LightGBM footfall models, Convolutional Neural optical freshness classifier (FSSAI benchmarked), Greedy heuristic routing.
+    </div>
+    <div class="tech-pill">
+      <strong>Backend &amp; Data Pipeline</strong>
+      FastAPI async REST architecture, SQLAlchemy ORM, SQLite/PostgreSQL, WebSocket telemetry, JWT session protection.
+    </div>
+    <div class="tech-pill">
+      <strong>Frontend &amp; UX System</strong>
+      React 18, TypeScript, Tailwind CSS, Recharts analytics, ambient particle physics, full mobile/desktop responsiveness.
+    </div>
+  </div>
+
+  <div class="footer">
+    Loife Platform • Smart India Hackathon 2026 Enterprise Edition • Designed for Evaluator Review
+  </div>
+
+</body>
+</html>

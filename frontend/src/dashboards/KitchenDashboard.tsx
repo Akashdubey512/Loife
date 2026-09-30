@@ -169,8 +169,8 @@ export const KitchenDashboard: React.FC = () => {
               aria-label="Select Kitchen Facility"
               className="bg-transparent text-xs font-semibold text-gray-200 focus:outline-none cursor-pointer"
             >
-              {kitchens.map((k) => (
-                <option key={k.id} value={k.id} className="bg-gray-900 text-white">
+              {kitchens.map((k, idx) => (
+                <option key={`kitchen-${k.id}-${idx}`} value={k.id} className="bg-gray-900 text-white">
                   {k.name} ({k.facility_code})
                 </option>
               ))}
@@ -274,8 +274,8 @@ export const KitchenDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {demands.map((item) => (
-                  <tr key={item.food_item_id} className="hover:bg-white/5 transition">
+                {demands.map((item, index) => (
+                  <tr key={`demand-${item.food_item_id}-${index}`} className="hover:bg-white/5 transition">
                     <td className="py-3.5 px-3 font-semibold text-white">
                       {item.food_name}
                     </td>
@@ -444,7 +444,7 @@ export const KitchenDashboard: React.FC = () => {
 
                   return (
                     <div
-                      key={batch.id}
+                      key={`batch-${batch.id}-${index}`}
                       className={`batch-bubble ${setting.animClass} relative group cursor-pointer transition-all duration-300`}
                       style={{
                         '--float-dur': setting.dur,
@@ -564,8 +564,8 @@ export const KitchenDashboard: React.FC = () => {
                   aria-label="Select Food Catalog Item"
                   className="w-full px-3 py-2 rounded-xl bg-gray-900 border border-white/15 text-white text-xs focus:border-emerald-500 focus:outline-none"
                 >
-                  {foodItems.map((fi) => (
-                    <option key={fi.id} value={fi.id}>
+                  {foodItems.map((fi, idx) => (
+                    <option key={`fi-pred-${fi.id}-${idx}`} value={fi.id}>
                       {fi.name} ({fi.category})
                     </option>
                   ))}
@@ -658,8 +658,8 @@ export const KitchenDashboard: React.FC = () => {
                   aria-label="Select Food Item for Waste Event"
                   className="w-full px-3 py-2 rounded-xl bg-gray-900 border border-white/15 text-white text-xs focus:border-emerald-500 focus:outline-none"
                 >
-                  {foodItems.map((fi) => (
-                    <option key={fi.id} value={fi.id}>
+                  {foodItems.map((fi, idx) => (
+                    <option key={`fi-waste-${fi.id}-${idx}`} value={fi.id}>
                       {fi.name} ({fi.category})
                     </option>
                   ))}
