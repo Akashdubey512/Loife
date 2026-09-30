@@ -97,22 +97,26 @@
     "model_name": "enose_beef_quality",
     "model_version": "trained-lightgbm-v1.0",
     "status": "trained",
-    "dataset": "none",
-    "dataset_source": "E-nose Beef Quality (Mendeley, DOI:10.17632/n8mc3nspfn.1) \u00e2\u20ac\u201d DOWNLOAD REQUIRED",
+    "dataset": "enose_beef",
+    "dataset_source": "E-nose Beef Quality (Mendeley, DOI:10.17632/n8mc3nspfn.1)",
     "trained_at": "2026-09-30T19:24:28.862862+00:00",
     "algorithm": "LightGBM",
     "artifact": "models/enose/enose_model.joblib",
     "metrics": {
-      "accuracy": 0.9978,
-      "macro_f1": 0.9968,
-      "macro_precision": 0.9975,
-      "macro_recall": 0.9961
+      "accuracy": 0.9310,
+      "macro_f1": 0.8718,
+      "macro_precision": 0.8675,
+      "macro_recall": 0.8833,
+      "validation_method": "15-minute block holdout (leakage-safe)",
+      "naive_random_accuracy": 0.9978
     },
     "limitations": [
       "Trained strictly on Mendeley E-nose Beef Quality Dataset (doi:10.17632/n8mc3nspfn.1)",
-      "Scope is BEEF QUALITY ONLY \u2014 not calibrated for poultry, pork, seafood, dairy, or fresh produce",
+      "Single continuous run (28.9h) — naive split (99.78%) is inflated by 5s autocorrelation; validated generalization is 93.10% accuracy / 0.8718 Macro-F1",
+      "Scope is strictly BEEF QUALITY ONLY — not calibrated for poultry, pork, seafood, dairy, or fresh produce",
       "Requires DHT11 (temp, humidity) and 8 MOS gas sensors (MQ2-MQ138) for inference",
-      "Human sensory inspection remains mandatory before food redistribution"
+      "Human sensory inspection remains mandatory before food redistribution",
+      "Full audit details: reports/models/enose_validation_audit.md"
     ]
   },
   {
@@ -129,8 +133,30 @@
     },
     "limitations": [
       "Lookup table, not a predictive model",
-      "Uses global average LCA values \u00e2\u20ac\u201d regional variation not captured",
+      "Uses global average LCA values — regional variation not captured",
       "42 food products covered; others use category fallback"
+    ]
+  },
+  {
+    "model_name": "route_optimization",
+    "model_version": "greedy-nearest-neighbor-v1.0",
+    "status": "active",
+    "dataset": "cvrplib_benchmark",
+    "dataset_source": "CVRPLIB (PUC-Rio, https://galgos.inf.puc-rio.br/cvrplib/)",
+    "trained_at": null,
+    "algorithm": "Greedy Nearest-Neighbor with Capacity Cutoff",
+    "artifact": "logistics/optimizer.py",
+    "benchmark": "reports/models/vrp_benchmark.md",
+    "metrics": {
+      "benchmark_instances": 9,
+      "feasibility": "100%",
+      "average_gap_pct": 40.24,
+      "average_runtime_ms": 1.25
+    },
+    "limitations": [
+      "Heuristic optimization algorithm, NOT a trained ML model",
+      "Produces feasible routes rapidly (< 3 ms) with an average +40.24% gap vs BKS optimal",
+      "Recommended for fast initial emergency dispatch; 2-opt or OR-Tools metaheuristics recommended for batch scheduling"
     ]
   }
 ]

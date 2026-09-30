@@ -220,9 +220,35 @@ def validate_models():
     return {"status": "valid" if passed == len(checks) else "partial", "checks": len(checks), "passed": passed}
 
 
+def validate_vrplib():
+    print("\n--- CVRPLIB Benchmark Instances (PUC-Rio) ---")
+    vrp_files = list((RAW_DIR / "vrplib").glob("*.vrp"))
+    sol_files = list((RAW_DIR / "vrplib").glob("*.sol"))
+    json_report = REPORTS_DIR.parent / "models" / "vrp_benchmark.json"
+
+    checks = []
+    checks.append(("vrp_instances >= 9", len(vrp_files) >= 9))
+    checks.append(("sol_files >= 9", len(sol_files) >= 9))
+    checks.append(("benchmark_report_exists", json_report.exists()))
+
+    if json_report.exists():
+        with open(json_report, "r", encoding="utf-8") as f:
+            bench_data = json.load(f)
+        checks.append(("all_benchmark_instances_feasible", bench_data.get("all_feasible", False) is True))
+        checks.append(("solution_gap_calculated", bench_data.get("average_solution_gap_pct") is not None))
+
+    passed = sum(1 for _, ok in checks if ok)
+    for name, ok in checks:
+        status = "[OK]" if ok else "[FAIL]"
+        print(f"  {status} {name}")
+    print(f"  Result: {passed}/{len(checks)} passed ({len(vrp_files)} instances, {len(sol_files)} solutions)")
+
+    return {"status": "valid" if passed == len(checks) else "partial", "checks": len(checks), "passed": passed, "instances": len(vrp_files)}
+
+
 def main():
     print("=" * 60)
-    print("reServe AI - Phase 8D/9: Data & Model Validation")
+    print("reServe AI - Phase 8D/9/10B: Data & Model Validation")
     print(f"Started: {datetime.now(timezone.utc).isoformat()}")
     print("=" * 60)
 
@@ -232,6 +258,7 @@ def main():
     results["poore_nemecek"] = validate_poore_nemecek()
     results["genpact_demand"] = validate_genpact()
     results["enose_beef"] = validate_enose()
+    results["cvrplib_benchmark"] = validate_vrplib()
     results["trained_models"] = validate_models()
 
     # Summary

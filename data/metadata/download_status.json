@@ -72,9 +72,16 @@
     },
     "cvrplib": {
       "name": "CVRPLIB Benchmark Instances",
-      "source_url": "http://vrp.atd-lab.inf.puc-rio.br/",
-      "access_status": "ATTEMPTING_VIA_VRPLIB_PACKAGE",
-      "blocker": "Original CVRPLIB web server returns 404. Using vrplib Python package as official mirror.",
+      "source_url": "https://galgos.inf.puc-rio.br/cvrplib/",
+      "access_status": "DOWNLOADED",
+      "downloaded_instances": [
+        "A-n32-k5", "A-n33-k5", "A-n33-k6",
+        "A-n55-k9", "A-n60-k9", "A-n63-k9",
+        "A-n80-k10", "B-n50-k7", "B-n78-k10"
+      ],
+      "instances_count": 9,
+      "solutions_count": 9,
+      "benchmark_report": "reports/models/vrp_benchmark.md",
       "destination_directory": "data/raw/vrplib/"
     }
   }

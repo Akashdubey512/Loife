@@ -7,6 +7,7 @@
   "dataset_sha256": "866367252b8498eddff2f488629e3e38341b2014a2e0a941d88e71a7499e7026",
   "dataset_rows": 20815,
   "trained_at": "2026-09-30T19:24:28.862862+00:00",
+  "audit_date": "2026-10-01",
   "algorithm": "LightGBM",
   "features": [
     "Temperature",
@@ -28,69 +29,29 @@
     "4": "SPOILED"
   },
   "metrics": {
-    "baseline_accuracy": 0.6398,
-    "baseline_macro_f1": 0.1951,
-    "test_accuracy": 0.9978,
-    "test_macro_f1": 0.9968,
-    "test_macro_precision": 0.9975,
-    "test_macro_recall": 0.9961,
-    "per_class": {
-      "EXCELLENT": {
-        "precision": 0.9977,
-        "recall": 1.0,
-        "f1": 0.9989,
-        "support": 441
-      },
-      "GOOD": {
-        "precision": 1.0,
-        "recall": 0.9971,
-        "f1": 0.9985,
-        "support": 340
-      },
-      "ACCEPTABLE": {
-        "precision": 0.9942,
-        "recall": 0.9884,
-        "f1": 0.9913,
-        "support": 344
-      },
-      "SPOILED": {
-        "precision": 0.998,
-        "recall": 0.999,
-        "f1": 0.9985,
-        "support": 1998
-      }
+    "leakage_safe_accuracy": 0.9310,
+    "leakage_safe_macro_f1": 0.8718,
+    "leakage_safe_macro_precision": 0.8675,
+    "leakage_safe_macro_recall": 0.8833,
+    "leakage_safe_split_type": "15-minute block holdout (disjoint time windows, 0 adjacent-second leakage)",
+    "per_class_leakage_safe_f1": {
+      "EXCELLENT": 0.95,
+      "GOOD": 0.88,
+      "ACCEPTABLE": 0.69,
+      "SPOILED": 0.96
     },
-    "confusion_matrix": [
-      [
-        441,
-        0,
-        0,
-        0
-      ],
-      [
-        1,
-        339,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        340,
-        4
-      ],
-      [
-        0,
-        0,
-        2,
-        1996
-      ]
-    ]
+    "naive_random_split_accuracy": 0.9978,
+    "naive_random_split_macro_f1": 0.9968,
+    "baseline_majority_accuracy": 0.6398,
+    "baseline_majority_macro_f1": 0.1951
   },
   "artifact": "models/enose/enose_model.joblib",
+  "validation_audit": "reports/models/enose_validation_audit.md",
   "limitations": [
     "Trained strictly on Mendeley E-nose Beef Quality Dataset (doi:10.17632/n8mc3nspfn.1)",
-    "Scope is BEEF QUALITY ONLY \u2014 not calibrated for poultry, pork, seafood, dairy, or fresh produce",
+    "Single physical beef sample monitored over 28.9 hours — naive random split (99.78%) is inflated by 5-second autocorrelation leakage",
+    "Scientifically validated generalization performance is 93.10% accuracy / 0.8718 Macro-F1 under 15-minute block holdout",
+    "Scope is strictly BEEF QUALITY ONLY — not calibrated for poultry, pork, seafood, dairy, or fresh produce",
     "Requires DHT11 (temp, humidity) and 8 MOS gas sensors (MQ2-MQ138) for inference",
     "Human sensory inspection remains mandatory before food redistribution"
   ]

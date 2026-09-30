@@ -138,6 +138,22 @@ def get_ml_status(current_user: User = Depends(get_current_user)):
     except Exception as e:
         engine_status.append({"engine": "sustainability_lca", "status": "ERROR", "error": str(e)})
 
+    # 8. Route Optimization
+    try:
+        from logistics.optimizer import logistics_optimizer
+        engine_status.append({
+            "engine": "route_optimization",
+            "model_type": "heuristic_optimization",
+            "model_version": "greedy-nearest-neighbor-v1.0",
+            "trained": False,
+            "status": "active",
+            "benchmark": "cvrplib-augerat-9instances",
+            "average_gap_pct": 40.24,
+            "endpoint": "/api/v1/logistics/optimize-route",
+        })
+    except Exception as e:
+        engine_status.append({"engine": "route_optimization", "status": "ERROR", "error": str(e)})
+
     trained_count = sum(1 for e in engine_status if e.get("trained", False))
     active_count = sum(1 for e in engine_status if e.get("status") not in ("ERROR", "unavailable"))
 

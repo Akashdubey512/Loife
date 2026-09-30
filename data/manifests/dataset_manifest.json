@@ -221,21 +221,21 @@
     {
       "id": "cvrplib",
       "name": "CVRPLIB Routing Benchmark Instances",
-      "source_url": "http://vrp.atd-lab.puc-rio.br/index.php/en/",
+      "source_url": "https://galgos.inf.puc-rio.br/cvrplib/",
       "source_organization": "PUC-Rio / CVRPLIB",
-      "download_date": "2026-09-30T17:45:08.235255+00:00",
+      "download_date": "2026-10-01T01:10:00+00:00",
       "local_path": "data/raw/vrplib/",
-      "file_size_bytes": null,
-      "row_count": 0,
+      "file_size_bytes": 10478,
+      "row_count": 9,
       "image_count": null,
-      "columns": [],
+      "columns": ["dimension", "capacity", "edge_weight_type", "node_coord", "demand", "depot"],
       "license": "Public domain (academic benchmark)",
       "license_review_required": false,
       "intended_use": "Route optimization benchmarking (NOT ML training)",
       "training_role": "benchmark_data",
       "checksum_sha256": null,
-      "status": "download_failed",
-      "notes": "0/7 Augerat benchmark instances downloaded"
+      "status": "downloaded",
+      "notes": "9 Augerat Set A and Set B benchmark instances (.vrp) and matching BKS solutions (.sol) downloaded from official PUC-Rio server (galgos.inf.puc-rio.br) and benchmarked."
     },
     {
       "id": "pmfme",

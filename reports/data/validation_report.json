@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-09-30T19:26:05.745338+00:00",
-  "total_checks": 54,
-  "total_passed": 54,
+  "timestamp": "2026-09-30T19:51:18.322585+00:00",
+  "total_checks": 59,
+  "total_passed": 59,
   "results": {
     "ai4i_2020": {
       "status": "valid",
@@ -35,6 +35,12 @@
       "passed": 7,
       "rows": 20815,
       "columns": 14
+    },
+    "cvrplib_benchmark": {
+      "status": "valid",
+      "checks": 5,
+      "passed": 5,
+      "instances": 9
     },
     "trained_models": {
       "status": "valid",
