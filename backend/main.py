@@ -36,6 +36,7 @@ from backend.logistics.router import router as logistics_router
 from backend.sustainability.router import router as sustainability_router
 from backend.notifications.router import router as notifications_router
 from backend.analytics.router import router as analytics_router
+from backend.ml_status import router as ml_status_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -89,6 +90,7 @@ app.include_router(logistics_router, prefix=f"{settings.API_V1_STR}/logistics", 
 app.include_router(sustainability_router, prefix=f"{settings.API_V1_STR}/sustainability", tags=["Sustainability & ESG"])
 app.include_router(notifications_router, prefix=f"{settings.API_V1_STR}/notifications", tags=["Notifications & Alerts"])
 app.include_router(analytics_router, prefix=f"{settings.API_V1_STR}/analytics", tags=["Executive Analytics"])
+app.include_router(ml_status_router, prefix=f"{settings.API_V1_STR}/ml", tags=["ML Model Status"])
 
 @app.get("/")
 def root():

@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
 from backend.core.database import get_db
 from backend.core.deps import get_current_user
@@ -8,6 +9,30 @@ from backend.models.entities import MachineEvent, User
 from backend.schemas.sensors import MachineHealthOut
 
 router = APIRouter()
+
+class MachineEvaluateRequest(BaseModel):
+    machine_id: str = "CHILLER-01"
+    machine_type: str = "BLAST_CHILLER"
+    air_temp_k: float = 300.0
+    process_temp_k: float = 310.0
+    rotational_speed_rpm: float = 1500.0
+    torque_nm: float = 40.0
+    tool_wear_min: float = 15.0
+
+class MachineEvaluateResponse(BaseModel):
+    machine_id: str
+    machine_type: str
+    failure_probability: float
+    failure_type: str
+    status: str
+    power_w: float
+    temp_diff_k: float
+    recommended_action: str
+    model_type: str
+    model_version: str
+    trained: bool
+    fallback_used: bool
+    dataset_benchmark: str
 
 @router.get("/health", response_model=List[MachineHealthOut])
 def get_equipment_health(
@@ -62,3 +87,22 @@ def get_equipment_health(
             recommended_action="Vibration and temperature profiles within standard tolerance."
         )
     ]
+
+@router.post("/evaluate", response_model=MachineEvaluateResponse)
+def evaluate_machine(
+    request: MachineEvaluateRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Evaluate machine health using trained ML model (AI4I 2020 dataset)."""
+    from ml.predictive_maintenance import maintenance_engine
+    result = maintenance_engine.evaluate_machine(
+        machine_id=request.machine_id,
+        machine_type=request.machine_type,
+        air_temp_k=request.air_temp_k,
+        process_temp_k=request.process_temp_k,
+        rotational_speed_rpm=request.rotational_speed_rpm,
+        torque_nm=request.torque_nm,
+        tool_wear_min=request.tool_wear_min,
+    )
+    return MachineEvaluateResponse(**result)
+

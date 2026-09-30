@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -15,6 +15,25 @@ class EnergySummary(BaseModel):
     water_liters_today: float
     efficiency_score_pct: float
 
+class EnergyPredictionRequest(BaseModel):
+    kitchen_id: int = 1
+    temperature_indoor: float = 22.0
+    temperature_outdoor: float = 25.0
+    humidity_indoor: float = 45.0
+    humidity_outdoor: float = 60.0
+    area_sqm: float = 200.0
+
+class EnergyPredictionResponse(BaseModel):
+    kitchen_id: int
+    predicted_energy_wh: float
+    predicted_energy_kwh: float
+    model_type: str
+    model_version: str
+    trained: bool
+    simulated: bool
+    fallback_used: bool
+    dataset_benchmark: str
+
 @router.get("/summary", response_model=EnergySummary)
 def get_energy_summary(
     kitchen_id: int = 1,
@@ -27,3 +46,21 @@ def get_energy_summary(
         water_liters_today=1450.0,
         efficiency_score_pct=91.5
     )
+
+@router.post("/predict", response_model=EnergyPredictionResponse)
+def predict_energy(
+    request: EnergyPredictionRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Predict energy consumption using trained ML model (Appliances Energy dataset)."""
+    from ml.energy_forecast import energy_engine
+    result = energy_engine.predict(
+        kitchen_id=request.kitchen_id,
+        temperature_indoor=request.temperature_indoor,
+        temperature_outdoor=request.temperature_outdoor,
+        humidity_indoor=request.humidity_indoor,
+        humidity_outdoor=request.humidity_outdoor,
+        area_sqm=request.area_sqm,
+    )
+    return EnergyPredictionResponse(**result)
+
