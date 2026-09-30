@@ -122,12 +122,12 @@
   {
     "model_name": "sustainability_lca",
     "model_version": "poore-nemecek-v2.0",
-    "status": "trained",
+    "status": "active",
     "dataset": "poore_nemecek_2018",
     "dataset_source": "Poore & Nemecek (2018) Science Table S2 + OWID",
     "trained_at": "2026-09-30T17:00:00Z",
     "algorithm": "Lookup table (42 food products)",
-    "artifact": "ml/sustainability_engine.py (inline data)",
+    "artifact": null,
     "metrics": {
       "product_coverage": 42
     },
@@ -145,7 +145,7 @@
     "dataset_source": "CVRPLIB (PUC-Rio, https://galgos.inf.puc-rio.br/cvrplib/)",
     "trained_at": null,
     "algorithm": "Clarke-Wright Savings with Intra-Route 2-Opt Local Search (with Greedy fallback)",
-    "artifact": "backend/routing/engine.py, logistics/optimizer.py",
+    "artifact": "backend/routing/engine.py",
     "benchmark": "reports/models/vrp_optimization_comparison.md",
     "metrics": {
       "benchmark_instances": 9,
