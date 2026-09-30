@@ -2,93 +2,39 @@
   {
     "model_name": "demand_forecasting",
     "model_version": "trained-lightgbm-v1.0",
+    "status": "trained",
     "dataset": "genpact_demand",
-    "dataset_hash": "d02ad2665d65db74",
-    "trained_at": "2026-09-30T17:51:29.696932+00:00",
+    "dataset_source": "Genpact Food Demand Forecasting (Kaggle/Analytics Vidhya)",
+    "trained_at": "2026-09-30T17:51:29Z",
     "algorithm": "LightGBM",
-    "features": [
-      "center_id",
-      "meal_id",
-      "checkout_price",
-      "base_price",
-      "emailer_for_promotion",
-      "homepage_featured",
-      "week",
-      "discount_pct",
-      "week_sin",
-      "week_cos"
-    ],
+    "artifact": "models/demand/demand_model.joblib",
     "metrics": {
-      "baseline_mae": 76.0,
-      "baseline_rmse": 96.34,
-      "RandomForest_mae": 73.15,
-      "LightGBM_mae": 72.79,
-      "XGBoost_mae": 75.06,
-      "RandomForest_rmse": 92.7,
-      "LightGBM_rmse": 92.14,
-      "XGBoost_rmse": 94.98,
-      "RandomForest_r2": 0.0736,
-      "LightGBM_r2": 0.0848,
-      "XGBoost_r2": 0.0275,
-      "best_test_mae": 72.79,
-      "best_test_rmse": 92.14,
-      "best_test_r2": 0.0848
+      "mae": 72.79,
+      "rmse": 92.14,
+      "r2": 0.0848
     },
-    "artifact_path": "D:\\ReServeAi\\models\\demand\\demand_model.joblib",
-    "status": "candidate",
     "limitations": [
-      "Trained on Genpact hackathon data",
+      "Trained on Genpact hackathon synthetic data",
       "Does not account for weather, special events, or menu changes",
-      "Requires retraining on institution-specific consumption data for production use"
+      "Requires retraining on institution-specific data for production use"
     ]
   },
   {
     "model_name": "predictive_maintenance",
     "model_version": "trained-lightgbm-v1.0",
+    "status": "trained",
     "dataset": "ai4i_2020",
-    "dataset_hash": "b60f12fdf5f2d3eb",
-    "trained_at": "2026-09-30T17:51:30.574690+00:00",
+    "dataset_source": "UCI ML Repository — AI4I 2020 Predictive Maintenance",
+    "trained_at": "2026-09-30T17:51:30Z",
     "algorithm": "LightGBM",
-    "features": [
-      "Air temperature [K]",
-      "Process temperature [K]",
-      "Rotational speed [rpm]",
-      "Torque [Nm]",
-      "Tool wear [min]",
-      "Product ID_encoded"
-    ],
+    "artifact": "models/maintenance/maintenance_model.joblib",
     "metrics": {
-      "RandomForest": {
-        "accuracy": 0.9795,
-        "precision": 0.814,
-        "recall": 0.5147,
-        "f1": 0.6306,
-        "roc_auc": 0.9569
-      },
-      "XGBoost": {
-        "accuracy": 0.981,
-        "precision": 0.7083,
-        "recall": 0.75,
-        "f1": 0.7286,
-        "roc_auc": 0.97
-      },
-      "LightGBM": {
-        "accuracy": 0.983,
-        "precision": 0.7429,
-        "recall": 0.7647,
-        "f1": 0.7536,
-        "roc_auc": 0.9797
-      }
-    },
-    "best_metrics": {
       "accuracy": 0.983,
       "precision": 0.7429,
       "recall": 0.7647,
       "f1": 0.7536,
       "roc_auc": 0.9797
     },
-    "artifact_path": "D:\\ReServeAi\\models\\maintenance\\maintenance_model.joblib",
-    "status": "candidate",
     "limitations": [
       "Trained on UCI AI4I 2020 synthetic industrial data",
       "Not specific to food service kitchen equipment",
@@ -98,56 +44,87 @@
   {
     "model_name": "energy_forecasting",
     "model_version": "trained-lightgbm-v1.0",
+    "status": "trained",
     "dataset": "appliances_energy",
-    "dataset_hash": "d82a59b20c7adf79",
-    "trained_at": "2026-09-30T17:51:33.504027+00:00",
+    "dataset_source": "UCI ML Repository — Appliances Energy Prediction",
+    "trained_at": "2026-09-30T17:51:33Z",
     "algorithm": "LightGBM",
-    "features": [
-      "lights",
-      "T1",
-      "RH_1",
-      "T2",
-      "RH_2",
-      "T3",
-      "RH_3",
-      "T4",
-      "RH_4",
-      "T5",
-      "RH_5",
-      "T6",
-      "RH_6",
-      "T7",
-      "RH_7",
-      "T8",
-      "RH_8",
-      "T9",
-      "RH_9",
-      "T_out",
-      "Press_mm_hg",
-      "RH_out",
-      "Windspeed",
-      "Visibility",
-      "Tdewpoint"
-    ],
+    "artifact": "models/energy/energy_model.joblib",
     "metrics": {
-      "baseline_mae": 52.83,
-      "baseline_rmse": 90.89,
-      "RandomForest_mae": 215.3568,
-      "RandomForest_rmse": 233.5247,
-      "RandomForest_r2": -5.6038,
-      "LightGBM_mae": 103.444,
-      "LightGBM_rmse": 121.906,
-      "LightGBM_r2": -0.7996,
-      "best_test_mae": 103.44,
-      "best_test_rmse": 121.91,
-      "best_test_r2": -0.7996
+      "mae": 103.44,
+      "rmse": 121.91
     },
-    "artifact_path": "D:\\ReServeAi\\models\\energy\\energy_model.joblib",
-    "status": "candidate",
     "limitations": [
       "Trained on Belgian residential appliance data",
       "Not directly calibrated for institutional kitchen energy profiles",
       "Serves as proof-of-concept for facility energy analytics"
+    ]
+  },
+  {
+    "model_name": "waste_prediction",
+    "model_version": "rule-based-v1.0",
+    "status": "fallback",
+    "dataset": "none",
+    "dataset_source": "No legitimate labeled waste training data available",
+    "trained_at": null,
+    "algorithm": "Rule-based heuristic",
+    "artifact": null,
+    "metrics": {},
+    "limitations": [
+      "Rule-based heuristic, not a trained ML model",
+      "Requires labeled waste event data for ML training",
+      "Waste ML training pipeline ready at ml/waste/train.py"
+    ]
+  },
+  {
+    "model_name": "cv_freshness_classifier",
+    "model_version": "spectral-spatial-v2.1-SIMULATED",
+    "status": "unavailable",
+    "dataset": "none",
+    "dataset_source": "Fresh and Rotten Fruits (Mendeley, DOI:10.17632/bdd69gyhv8.1) — DOWNLOAD REQUIRED",
+    "trained_at": null,
+    "algorithm": "Spectral-spatial heuristic (simulated)",
+    "artifact": null,
+    "metrics": {},
+    "limitations": [
+      "Currently uses pixel-level colorimetric analysis, NOT a trained CNN",
+      "Fruit dataset requires manual Mendeley browser download",
+      "When trained, model scope is FRUIT FRESHNESS ONLY — not universal food safety",
+      "Human inspector verification mandatory for all quality decisions"
+    ]
+  },
+  {
+    "model_name": "enose_beef_quality",
+    "model_version": "unavailable",
+    "status": "unavailable",
+    "dataset": "none",
+    "dataset_source": "E-nose Beef Quality (Mendeley, DOI:10.17632/n8mc3nspfn.1) — DOWNLOAD REQUIRED",
+    "trained_at": null,
+    "algorithm": null,
+    "artifact": null,
+    "metrics": {},
+    "limitations": [
+      "Dataset requires manual Mendeley browser download",
+      "When trained, model scope is BEEF QUALITY ONLY — not universal food quality",
+      "Training pipeline ready at ml/sensor/train_enose.py (pending)"
+    ]
+  },
+  {
+    "model_name": "sustainability_lca",
+    "model_version": "poore-nemecek-v2.0",
+    "status": "trained",
+    "dataset": "poore_nemecek_2018",
+    "dataset_source": "Poore & Nemecek (2018) Science Table S2 + OWID",
+    "trained_at": "2026-09-30T17:00:00Z",
+    "algorithm": "Lookup table (42 food products)",
+    "artifact": "ml/sustainability_engine.py (inline data)",
+    "metrics": {
+      "product_coverage": 42
+    },
+    "limitations": [
+      "Lookup table, not a predictive model",
+      "Uses global average LCA values — regional variation not captured",
+      "42 food products covered; others use category fallback"
     ]
   }
 ]
