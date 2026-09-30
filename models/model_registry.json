@@ -24,7 +24,7 @@
     "model_version": "trained-lightgbm-v1.0",
     "status": "trained",
     "dataset": "ai4i_2020",
-    "dataset_source": "UCI ML Repository — AI4I 2020 Predictive Maintenance",
+    "dataset_source": "UCI ML Repository \u00e2\u20ac\u201d AI4I 2020 Predictive Maintenance",
     "trained_at": "2026-09-30T17:51:30Z",
     "algorithm": "LightGBM",
     "artifact": "models/maintenance/maintenance_model.joblib",
@@ -46,7 +46,7 @@
     "model_version": "trained-lightgbm-v1.0",
     "status": "trained",
     "dataset": "appliances_energy",
-    "dataset_source": "UCI ML Repository — Appliances Energy Prediction",
+    "dataset_source": "UCI ML Repository \u00e2\u20ac\u201d Appliances Energy Prediction",
     "trained_at": "2026-09-30T17:51:33Z",
     "algorithm": "LightGBM",
     "artifact": "models/energy/energy_model.joblib",
@@ -81,7 +81,7 @@
     "model_version": "spectral-spatial-v2.1-SIMULATED",
     "status": "unavailable",
     "dataset": "none",
-    "dataset_source": "Fresh and Rotten Fruits (Mendeley, DOI:10.17632/bdd69gyhv8.1) — DOWNLOAD REQUIRED",
+    "dataset_source": "Fresh and Rotten Fruits (Mendeley, DOI:10.17632/bdd69gyhv8.1) \u00e2\u20ac\u201d DOWNLOAD REQUIRED",
     "trained_at": null,
     "algorithm": "Spectral-spatial heuristic (simulated)",
     "artifact": null,
@@ -89,24 +89,30 @@
     "limitations": [
       "Currently uses pixel-level colorimetric analysis, NOT a trained CNN",
       "Fruit dataset requires manual Mendeley browser download",
-      "When trained, model scope is FRUIT FRESHNESS ONLY — not universal food safety",
+      "When trained, model scope is FRUIT FRESHNESS ONLY \u00e2\u20ac\u201d not universal food safety",
       "Human inspector verification mandatory for all quality decisions"
     ]
   },
   {
     "model_name": "enose_beef_quality",
-    "model_version": "unavailable",
-    "status": "unavailable",
+    "model_version": "trained-lightgbm-v1.0",
+    "status": "trained",
     "dataset": "none",
-    "dataset_source": "E-nose Beef Quality (Mendeley, DOI:10.17632/n8mc3nspfn.1) — DOWNLOAD REQUIRED",
-    "trained_at": null,
-    "algorithm": null,
-    "artifact": null,
-    "metrics": {},
+    "dataset_source": "E-nose Beef Quality (Mendeley, DOI:10.17632/n8mc3nspfn.1) \u00e2\u20ac\u201d DOWNLOAD REQUIRED",
+    "trained_at": "2026-09-30T19:24:28.862862+00:00",
+    "algorithm": "LightGBM",
+    "artifact": "models/enose/enose_model.joblib",
+    "metrics": {
+      "accuracy": 0.9978,
+      "macro_f1": 0.9968,
+      "macro_precision": 0.9975,
+      "macro_recall": 0.9961
+    },
     "limitations": [
-      "Dataset requires manual Mendeley browser download",
-      "When trained, model scope is BEEF QUALITY ONLY — not universal food quality",
-      "Training pipeline ready at ml/sensor/train_enose.py (pending)"
+      "Trained strictly on Mendeley E-nose Beef Quality Dataset (doi:10.17632/n8mc3nspfn.1)",
+      "Scope is BEEF QUALITY ONLY \u2014 not calibrated for poultry, pork, seafood, dairy, or fresh produce",
+      "Requires DHT11 (temp, humidity) and 8 MOS gas sensors (MQ2-MQ138) for inference",
+      "Human sensory inspection remains mandatory before food redistribution"
     ]
   },
   {
@@ -123,7 +129,7 @@
     },
     "limitations": [
       "Lookup table, not a predictive model",
-      "Uses global average LCA values — regional variation not captured",
+      "Uses global average LCA values \u00e2\u20ac\u201d regional variation not captured",
       "42 food products covered; others use category fallback"
     ]
   }

@@ -96,6 +96,12 @@ class TestModelLoading:
         assert cv_pipeline is not None
         assert isinstance(SIMULATION_MODE, bool)
 
+    def test_enose_model_loads(self):
+        from ml.sensor.enose_classifier import ENGINE_TYPE, ENGINE_VERSION, IS_TRAINED_MODEL
+        assert ENGINE_VERSION is not None
+        assert isinstance(IS_TRAINED_MODEL, bool)
+        assert IS_TRAINED_MODEL is True
+
 
 # ============================================================
 # Inference Schema Tests
@@ -149,6 +155,21 @@ class TestInferenceSchemas:
         result = cv_pipeline.infer(b"fake-test-bytes", food_name="Apple")
         required_keys = {"freshness_level", "quality_score", "simulated"}
         assert required_keys.issubset(set(result.keys()))
+
+    def test_enose_infer_returns_schema(self):
+        from ml.sensor.enose_classifier import enose_engine
+        result = enose_engine.evaluate({
+            "Temperature": 29.3, "Humidity": 62.4,
+            "Mq-2": 500, "Mq-3": 400, "Mq-4": 300, "Mq-5": 300,
+            "Mq-135": 450, "Mq-136": 400, "Mq-137": 750, "Mq-138": 60
+        })
+        required_keys = {"quality_class", "quality_label", "safety_verdict", "confidence", "is_trained_model", "scope"}
+        assert required_keys.issubset(set(result.keys())), \
+            f"Missing keys: {required_keys - set(result.keys())}"
+        assert result["quality_class"] in [1, 2, 3, 4]
+        assert result["quality_label"] in ["EXCELLENT", "GOOD", "ACCEPTABLE", "SPOILED"]
+        assert result["is_trained_model"] is True
+        assert result["scope"] == "BEEF_QUALITY_ONLY"
 
 
 # ============================================================

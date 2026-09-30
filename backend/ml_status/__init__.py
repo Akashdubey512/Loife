@@ -109,15 +109,19 @@ def get_ml_status(current_user: User = Depends(get_current_user)):
         engine_status.append({"engine": "cv_freshness_classifier", "status": "ERROR", "error": str(e)})
 
     # 6. E-nose Sensor
-    engine_status.append({
-        "engine": "enose_beef_quality",
-        "model_type": "unavailable",
-        "model_version": "unavailable",
-        "trained": False,
-        "status": "unavailable",
-        "reason": "E-nose dataset requires manual Mendeley download",
-        "scope": "Beef quality ONLY (not universal food quality)",
-    })
+    try:
+        from ml.sensor.enose_classifier import ENGINE_TYPE as NT, ENGINE_VERSION as NV, IS_TRAINED_MODEL as N_TRAINED
+        engine_status.append({
+            "engine": "enose_beef_quality",
+            "model_type": NT,
+            "model_version": NV,
+            "trained": N_TRAINED,
+            "status": "trained" if N_TRAINED else "fallback",
+            "scope": "Beef quality ONLY (not universal food quality)",
+            "endpoint": "/api/v1/sensors/enose/evaluate",
+        })
+    except Exception as e:
+        engine_status.append({"engine": "enose_beef_quality", "status": "ERROR", "error": str(e)})
 
     # 7. Sustainability
     try:

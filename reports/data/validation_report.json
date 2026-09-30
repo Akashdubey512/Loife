@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-09-30T18:17:29.677516+00:00",
-  "total_checks": 42,
-  "total_passed": 42,
+  "timestamp": "2026-09-30T19:26:05.745338+00:00",
+  "total_checks": 54,
+  "total_passed": 54,
   "results": {
     "ai4i_2020": {
       "status": "valid",
@@ -29,10 +29,17 @@
       "passed": 9,
       "rows": 50000
     },
+    "enose_beef": {
+      "status": "valid",
+      "checks": 7,
+      "passed": 7,
+      "rows": 20815,
+      "columns": 14
+    },
     "trained_models": {
       "status": "valid",
-      "checks": 16,
-      "passed": 16
+      "checks": 21,
+      "passed": 21
     }
   }
 }

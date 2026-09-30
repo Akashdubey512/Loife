@@ -161,12 +161,41 @@ def validate_genpact():
     return {"status": "valid" if passed == len(checks) else "partial", "checks": len(checks), "passed": passed, "rows": rows}
 
 
+def validate_enose():
+    print("\n--- E-nose Beef Quality Dataset (Mendeley) ---")
+    csv_files = list((RAW_DIR / "enose").rglob("*.csv"))
+    if not csv_files:
+        print("  [SKIP] No enose data files found")
+        return {"status": "missing", "checks": 0, "passed": 0}
+
+    csv_path = csv_files[0]
+    rows = count_csv_rows(csv_path)
+    cols = [c.strip().lower() for c in get_csv_columns(csv_path)]
+
+    checks = []
+    checks.append(("row_count >= 20000", rows >= 20000))
+    checks.append(("has_13+_columns", len(cols) >= 13))
+    checks.append(("has_class_col", any("class" in c or "label" in c for c in cols)))
+    checks.append(("has_temperature_col", any("temp" in c for c in cols)))
+    checks.append(("has_humidity_col", any("humid" in c for c in cols)))
+    checks.append(("has_mq_sensors", sum(1 for c in cols if "mq" in c) >= 6))
+    checks.append(("has_tvc_col", any("tvc" in c for c in cols)))
+
+    passed = sum(1 for _, ok in checks if ok)
+    for name, ok in checks:
+        status = "[OK]" if ok else "[FAIL]"
+        print(f"  {status} {name}")
+    print(f"  Result: {passed}/{len(checks)} passed ({rows} rows, {len(cols)} cols)")
+
+    return {"status": "valid" if passed == len(checks) else "partial", "checks": len(checks), "passed": passed, "rows": rows, "columns": len(cols)}
+
+
 def validate_models():
     print("\n--- Trained Model Artifacts ---")
     models_dir = PROJECT_ROOT / "models"
 
     checks = []
-    for model_name in ["demand", "maintenance", "energy"]:
+    for model_name in ["demand", "maintenance", "energy", "enose"]:
         model_path = models_dir / model_name / f"{model_name}_model.joblib"
         meta_path = models_dir / model_name / f"{model_name}_model_metadata.json"
         checks.append((f"{model_name}_model_exists", model_path.exists()))
@@ -193,7 +222,7 @@ def validate_models():
 
 def main():
     print("=" * 60)
-    print("reServe AI - Phase 8D: Data & Model Validation")
+    print("reServe AI - Phase 8D/9: Data & Model Validation")
     print(f"Started: {datetime.now(timezone.utc).isoformat()}")
     print("=" * 60)
 
@@ -202,6 +231,7 @@ def main():
     results["appliances_energy"] = validate_appliances_energy()
     results["poore_nemecek"] = validate_poore_nemecek()
     results["genpact_demand"] = validate_genpact()
+    results["enose_beef"] = validate_enose()
     results["trained_models"] = validate_models()
 
     # Summary
