@@ -1,0 +1,51 @@
+{
+  "timestamp": "2026-09-30T21:26:25.611370+00:00",
+  "total_checks": 59,
+  "total_passed": 59,
+  "results": {
+    "ai4i_2020": {
+      "status": "valid",
+      "checks": 6,
+      "passed": 6,
+      "rows": 10000,
+      "columns": 14
+    },
+    "appliances_energy": {
+      "status": "valid",
+      "checks": 5,
+      "passed": 5,
+      "rows": 19735,
+      "columns": 29
+    },
+    "poore_nemecek": {
+      "status": "valid",
+      "checks": 6,
+      "passed": 6,
+      "rows": 42
+    },
+    "genpact_demand": {
+      "status": "valid",
+      "checks": 9,
+      "passed": 9,
+      "rows": 50000
+    },
+    "enose_beef": {
+      "status": "valid",
+      "checks": 7,
+      "passed": 7,
+      "rows": 20815,
+      "columns": 14
+    },
+    "cvrplib_benchmark": {
+      "status": "valid",
+      "checks": 5,
+      "passed": 5,
+      "instances": 9
+    },
+    "trained_models": {
+      "status": "valid",
+      "checks": 21,
+      "passed": 21
+    }
+  }
+}

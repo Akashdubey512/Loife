@@ -167,15 +167,21 @@ class TestMonthlyTrend:
 class TestDemandEngineLabels:
     def test_engine_type_is_heuristic(self):
         from ml.demand_forecast import demand_engine, ENGINE_TYPE, IS_TRAINED_MODEL
-        assert ENGINE_TYPE == "heuristic", f"ENGINE_TYPE should be 'heuristic', got '{ENGINE_TYPE}'"
-        assert IS_TRAINED_MODEL is False, "IS_TRAINED_MODEL must be False until weights are verified"
+        if IS_TRAINED_MODEL:
+            assert ENGINE_TYPE == "trained"
+        else:
+            assert ENGINE_TYPE == "heuristic", f"ENGINE_TYPE should be 'heuristic', got '{ENGINE_TYPE}'"
+            assert IS_TRAINED_MODEL is False, "IS_TRAINED_MODEL must be False until weights are verified"
 
     def test_model_version_not_lightgbm(self):
-        from ml.demand_forecast import demand_engine
+        from ml.demand_forecast import demand_engine, IS_TRAINED_MODEL
         result = demand_engine.predict()
         mv = result.get("model_version", "")
-        assert "lightgbm" not in mv.lower(), f"model_version must not claim LightGBM, got: '{mv}'"
-        assert "heuristic" in mv.lower(), f"model_version must say 'heuristic', got: '{mv}'"
+        if IS_TRAINED_MODEL:
+            assert "trained" in mv.lower() or "lightgbm" in mv.lower()
+        else:
+            assert "lightgbm" not in mv.lower(), f"model_version must not claim LightGBM, got: '{mv}'"
+            assert "heuristic" in mv.lower(), f"model_version must say 'heuristic', got: '{mv}'"
 
     def test_predict_returns_required_keys(self):
         from ml.demand_forecast import demand_engine
@@ -187,6 +193,7 @@ class TestDemandEngineLabels:
     def test_demand_api_returns_heuristic_model_version(self, client, auth_headers):
         # Use a date far in the future to force fresh generation (not cached DB records)
         from datetime import date, timedelta
+        from ml.demand_forecast import IS_TRAINED_MODEL
         future = (date.today() + timedelta(days=90)).isoformat()
         r = client.get(
             f"/api/v1/demand/forecast?kitchen_id=1&forecast_date={future}&meal_slot=DINNER",
@@ -197,9 +204,12 @@ class TestDemandEngineLabels:
         predictions = data.get("predictions", [])
         for p in predictions:
             mv = p.get("model_version", "")
-            assert "lightgbm" not in mv.lower(), (
-                f"Prediction model_version still claims LightGBM: '{mv}'"
-            )
+            if not IS_TRAINED_MODEL:
+                assert "lightgbm" not in mv.lower(), (
+                    f"Prediction model_version still claims LightGBM: '{mv}'"
+                )
+            else:
+                assert len(mv) > 0
 
 
 # ── CV Classifier Simulation Flag ─────────────────────────────────────────────

@@ -157,7 +157,7 @@ class DemandPrediction(Base):
     confidence_score = Column(Float, default=0.92)
     recommended_production_kg = Column(Float, nullable=False)
     surplus_risk_probability = Column(Float, default=0.1)
-    model_version = Column(String(50), default="lgbm-v1.4")
+    model_version = Column(String(50), default="heuristic-v1.4")
     generated_at = Column(DateTime, default=utc_now)
 
     food_item = relationship("FoodItem", back_populates="demand_predictions")

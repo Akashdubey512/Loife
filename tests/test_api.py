@@ -391,7 +391,7 @@ def test_ml_waste_engine():
     )
     assert result["expected_waste_kg"] > 0
     assert "root_cause" in result
-    assert result["model_version"] == "waste-xgb-v2.1"
+    assert result["model_version"] == "rule-based-v1.0"
 
 def test_ml_sustainability_engine():
     from ml.sustainability_engine import sustainability_engine

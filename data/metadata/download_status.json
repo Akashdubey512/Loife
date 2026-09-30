@@ -1,0 +1,88 @@
+{
+  "last_updated": "2026-10-01T00:01:00Z",
+  "datasets": {
+    "fresh_rotten_fruits": {
+      "name": "Fresh and Rotten Fruits Dataset",
+      "source_url": "https://data.mendeley.com/datasets/bdd69gyhv8/1",
+      "doi": "10.17632/bdd69gyhv8.1",
+      "access_status": "BLOCKED",
+      "blocker": "Mendeley Data requires browser-based download with JavaScript rendering. No direct download API available without authentication.",
+      "expected_files": "ZIP archive containing 16 class directories (fresh/rotten x 8 fruits)",
+      "expected_size_mb": "approximately 600-800 MB",
+      "expected_image_count": 15535,
+      "classes": [
+        "fresh_apple",
+        "rotten_apple",
+        "fresh_banana",
+        "rotten_banana",
+        "fresh_orange",
+        "rotten_orange",
+        "fresh_grape",
+        "rotten_grape",
+        "fresh_guava",
+        "rotten_guava",
+        "fresh_jujube",
+        "rotten_jujube",
+        "fresh_pomegranate",
+        "rotten_pomegranate",
+        "fresh_strawberry",
+        "rotten_strawberry"
+      ],
+      "license": "CC BY 4.0",
+      "citation": "Sultana, Nusrat; Jahan, Musfika; Uddin, Mohammad Shorif (2022). Fresh and Rotten Fruits Dataset. Mendeley Data, V1.",
+      "destination_directory": "data/raw/fruits/",
+      "manual_download_instructions": "1. Visit https://data.mendeley.com/datasets/bdd69gyhv8/1\n2. Click the 'Download' button\n3. Save the ZIP file to data/raw/fruits/\n4. Extract the archive\n5. Run: python -m ml.pipelines.validate_datasets"
+    },
+    "enose_beef": {
+      "name": "E-nose Beef Quality Classification Dataset (4 classes)",
+      "source_url": "https://data.mendeley.com/datasets/n8mc3nspfn/1",
+      "doi": "10.17632/n8mc3nspfn.1",
+      "access_status": "DOWNLOADED",
+      "blocker": "Mendeley Data requires browser-based download with JavaScript rendering.",
+      "expected_files": "CSV file with sensor readings",
+      "expected_size_mb": "approximately 5-20 MB",
+      "expected_row_count": "approximately 20820 (1735 minutes at 5-second intervals)",
+      "columns": [
+        "Minute",
+        "TVC",
+        "Label",
+        "MQ2",
+        "MQ3",
+        "MQ4",
+        "MQ5",
+        "MQ135",
+        "MQ136",
+        "MQ137",
+        "MQ138",
+        "Temperature",
+        "Humidity"
+      ],
+      "classes": {
+        "1": "Excellent (TVC < 3)",
+        "2": "Good (3 <= TVC < 4)",
+        "3": "Acceptable (4 <= TVC < 5)",
+        "4": "Spoiled (TVC >= 5)"
+      },
+      "license": "CC BY 4.0",
+      "citation": "Surjith S, Alex Raj SM (2025). E-nose based Beef Quality Classification Dataset. Mendeley Data, V1.",
+      "destination_directory": "data/raw/enose/",
+      "manual_download_instructions": "1. Visit https://data.mendeley.com/datasets/n8mc3nspfn/1\n2. Click the 'Download' button\n3. Save the CSV file to data/raw/enose/\n4. Run: python -m ml.pipelines.validate_datasets",
+      "downloaded_at": "2026-09-30T19:24:28.868894+00:00",
+      "verified_rows": 20815
+    },
+    "cvrplib": {
+      "name": "CVRPLIB Benchmark Instances",
+      "source_url": "https://galgos.inf.puc-rio.br/cvrplib/",
+      "access_status": "DOWNLOADED",
+      "downloaded_instances": [
+        "A-n32-k5", "A-n33-k5", "A-n33-k6",
+        "A-n55-k9", "A-n60-k9", "A-n63-k9",
+        "A-n80-k10", "B-n50-k7", "B-n78-k10"
+      ],
+      "instances_count": 9,
+      "solutions_count": 9,
+      "benchmark_report": "reports/models/vrp_benchmark.md",
+      "destination_directory": "data/raw/vrplib/"
+    }
+  }
+}

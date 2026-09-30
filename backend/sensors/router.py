@@ -65,3 +65,32 @@ def record_sensor_reading(
     db.commit()
     db.refresh(reading)
     return reading
+
+from pydantic import BaseModel, Field
+
+class EnoseEvaluationRequest(BaseModel):
+    temperature_celsius: float = Field(..., ge=-50.0, le=100.0)
+    humidity_pct: float = Field(..., ge=0.0, le=100.0)
+    mq2_raw: float = Field(..., ge=0.0)
+    mq3_raw: float = Field(..., ge=0.0)
+    mq4_raw: float = Field(..., ge=0.0)
+    mq5_raw: float = Field(..., ge=0.0)
+    mq6_raw: Optional[float] = Field(None, ge=0.0)
+    mq7_raw: Optional[float] = Field(None, ge=0.0)
+    mq8_raw: Optional[float] = Field(None, ge=0.0)
+    mq135_raw: float = Field(..., ge=0.0)
+    mq136_raw: float = Field(..., ge=0.0)
+    mq137_raw: float = Field(..., ge=0.0)
+    mq138_raw: float = Field(..., ge=0.0)
+
+@router.post("/enose/evaluate")
+def evaluate_enose_reading(
+    payload: EnoseEvaluationRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Evaluates gas sensor telemetry using the trained/audited E-Nose classifier (Beef Quality Only).
+    """
+    from ml.sensor.enose_classifier import enose_engine
+    # enose_engine expects dict of features
+    return enose_engine.evaluate(payload.model_dump())

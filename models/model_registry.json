@@ -1,0 +1,164 @@
+[
+  {
+    "model_name": "demand_forecasting",
+    "model_version": "trained-lightgbm-v1.0",
+    "status": "trained",
+    "dataset": "genpact_demand",
+    "dataset_source": "Genpact Food Demand Forecasting (Kaggle/Analytics Vidhya)",
+    "trained_at": "2026-09-30T17:51:29Z",
+    "algorithm": "LightGBM",
+    "artifact": "models/demand/demand_model.joblib",
+    "metrics": {
+      "mae": 72.79,
+      "rmse": 92.14,
+      "r2": 0.0848
+    },
+    "limitations": [
+      "Trained on Genpact hackathon synthetic data",
+      "Does not account for weather, special events, or menu changes",
+      "Requires retraining on institution-specific data for production use"
+    ]
+  },
+  {
+    "model_name": "predictive_maintenance",
+    "model_version": "trained-lightgbm-v1.0",
+    "status": "trained",
+    "dataset": "ai4i_2020",
+    "dataset_source": "UCI ML Repository \u00e2\u20ac\u201d AI4I 2020 Predictive Maintenance",
+    "trained_at": "2026-09-30T17:51:30Z",
+    "algorithm": "LightGBM",
+    "artifact": "models/maintenance/maintenance_model.joblib",
+    "metrics": {
+      "accuracy": 0.983,
+      "precision": 0.7429,
+      "recall": 0.7647,
+      "f1": 0.7536,
+      "roc_auc": 0.9797
+    },
+    "limitations": [
+      "Trained on UCI AI4I 2020 synthetic industrial data",
+      "Not specific to food service kitchen equipment",
+      "Applicable for cold-chain equipment anomaly detection research"
+    ]
+  },
+  {
+    "model_name": "energy_forecasting",
+    "model_version": "trained-lightgbm-v1.0",
+    "status": "trained",
+    "dataset": "appliances_energy",
+    "dataset_source": "UCI ML Repository \u00e2\u20ac\u201d Appliances Energy Prediction",
+    "trained_at": "2026-09-30T17:51:33Z",
+    "algorithm": "LightGBM",
+    "artifact": "models/energy/energy_model.joblib",
+    "metrics": {
+      "mae": 103.44,
+      "rmse": 121.91
+    },
+    "limitations": [
+      "Trained on Belgian residential appliance data",
+      "Not directly calibrated for institutional kitchen energy profiles",
+      "Serves as proof-of-concept for facility energy analytics"
+    ]
+  },
+  {
+    "model_name": "waste_prediction",
+    "model_version": "rule-based-v1.0",
+    "status": "fallback",
+    "dataset": "none",
+    "dataset_source": "No legitimate labeled waste training data available",
+    "trained_at": null,
+    "algorithm": "Rule-based heuristic",
+    "artifact": null,
+    "metrics": {},
+    "limitations": [
+      "Rule-based heuristic, not a trained ML model",
+      "Requires labeled waste event data for ML training",
+      "Waste ML training pipeline ready at ml/waste/train.py"
+    ]
+  },
+  {
+    "model_name": "cv_freshness_classifier",
+    "model_version": "spectral-spatial-v2.1-SIMULATED",
+    "status": "unavailable",
+    "dataset": "none",
+    "dataset_source": "Fresh and Rotten Fruits (Mendeley, DOI:10.17632/bdd69gyhv8.1) \u00e2\u20ac\u201d DOWNLOAD REQUIRED",
+    "trained_at": null,
+    "algorithm": "Spectral-spatial heuristic (simulated)",
+    "artifact": null,
+    "metrics": {},
+    "limitations": [
+      "Currently uses pixel-level colorimetric analysis, NOT a trained CNN",
+      "Fruit dataset requires manual Mendeley browser download",
+      "When trained, model scope is FRUIT FRESHNESS ONLY \u00e2\u20ac\u201d not universal food safety",
+      "Human inspector verification mandatory for all quality decisions"
+    ]
+  },
+  {
+    "model_name": "enose_beef_quality",
+    "model_version": "trained-lightgbm-v1.0",
+    "status": "trained",
+    "dataset": "enose_beef",
+    "dataset_source": "E-nose Beef Quality (Mendeley, DOI:10.17632/n8mc3nspfn.1)",
+    "trained_at": "2026-09-30T19:24:28.862862+00:00",
+    "algorithm": "LightGBM",
+    "artifact": "models/enose/enose_model.joblib",
+    "metrics": {
+      "accuracy": 0.9310,
+      "macro_f1": 0.8718,
+      "macro_precision": 0.8675,
+      "macro_recall": 0.8833,
+      "validation_method": "15-minute block holdout (leakage-safe)",
+      "naive_random_accuracy": 0.9978
+    },
+    "limitations": [
+      "Trained strictly on Mendeley E-nose Beef Quality Dataset (doi:10.17632/n8mc3nspfn.1)",
+      "Single continuous run (28.9h) — naive split (99.78%) is inflated by 5s autocorrelation; validated generalization is 93.10% accuracy / 0.8718 Macro-F1",
+      "Scope is strictly BEEF QUALITY ONLY — not calibrated for poultry, pork, seafood, dairy, or fresh produce",
+      "Requires DHT11 (temp, humidity) and 8 MOS gas sensors (MQ2-MQ138) for inference",
+      "Human sensory inspection remains mandatory before food redistribution",
+      "Full audit details: reports/models/enose_validation_audit.md"
+    ]
+  },
+  {
+    "model_name": "sustainability_lca",
+    "model_version": "poore-nemecek-v2.0",
+    "status": "active",
+    "dataset": "poore_nemecek_2018",
+    "dataset_source": "Poore & Nemecek (2018) Science Table S2 + OWID",
+    "trained_at": "2026-09-30T17:00:00Z",
+    "algorithm": "Lookup table (42 food products)",
+    "artifact": null,
+    "metrics": {
+      "product_coverage": 42
+    },
+    "limitations": [
+      "Lookup table, not a predictive model",
+      "Uses global average LCA values — regional variation not captured",
+      "42 food products covered; others use category fallback"
+    ]
+  },
+  {
+    "model_name": "route_optimization",
+    "model_version": "clarke-wright-2opt-v2.0",
+    "status": "active",
+    "dataset": "cvrplib_benchmark",
+    "dataset_source": "CVRPLIB (PUC-Rio, https://galgos.inf.puc-rio.br/cvrplib/)",
+    "trained_at": null,
+    "algorithm": "Clarke-Wright Savings with Intra-Route 2-Opt Local Search (with Greedy fallback)",
+    "artifact": "backend/routing/engine.py",
+    "benchmark": "reports/models/vrp_optimization_comparison.md",
+    "metrics": {
+      "benchmark_instances": 9,
+      "feasibility": "100%",
+      "improved_average_gap_pct": 4.07,
+      "baseline_average_gap_pct": 39.12,
+      "average_runtime_ms": 4.55,
+      "mean_distance_reduction_pct": 25.7
+    },
+    "limitations": [
+      "Combinatorial optimization algorithm, NOT a trained machine learning model",
+      "100% capacity feasibility verified on CVRPLIB Set A & Set B instances",
+      "Sub-10ms deterministic runtime suitable for live API dispatch"
+    ]
+  }
+]
