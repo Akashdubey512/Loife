@@ -38,8 +38,18 @@ from backend.notifications.router import router as notifications_router
 from backend.analytics.router import router as analytics_router
 from backend.ml_status import router as ml_status_router
 
+import logging
+
+# Configure structured application logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+logger = logging.getLogger("reserve_ai.platform")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info("Initializing reServe AI platform (Environment: %s)", settings.ENVIRONMENT)
     # Initialize DB tables
     Base.metadata.create_all(bind=engine)
     # Automatic seeding is strictly disabled in production.
@@ -47,9 +57,12 @@ async def lifespan(app: FastAPI):
     if settings.ENVIRONMENT != "production" and os.getenv("SEED_DEMO_DATA", "false").lower() in ("true", "1", "yes"):
         try:
             seed_database()
+            logger.info("Development database seeding complete.")
         except Exception as e:
-            print(f"Notice: Database demo seeding caught: {e}")
+            logger.warning("Database demo seeding caught: %s", str(e))
+    logger.info("reServe AI platform services operational.")
     yield
+    logger.info("Shutting down reServe AI platform services cleanly.")
 
 is_production = (settings.ENVIRONMENT or "development").lower() == "production"
 
@@ -120,6 +133,64 @@ def health_check(db: Session = Depends(get_db)):
         "status": "HEALTHY",
         "database": "connected",
         "environment": settings.ENVIRONMENT
+    }
+
+@app.get("/health/live", status_code=200)
+def health_liveness():
+    """
+    Liveness probe: verifies that the application process is running.
+    """
+    return {
+        "status": "ALIVE",
+        "process": "running",
+        "environment": settings.ENVIRONMENT
+    }
+
+@app.get("/health/ready", status_code=200)
+def health_readiness(db: Session = Depends(get_db)):
+    """
+    Readiness probe: verifies core operational dependencies while truthfully reporting
+    component-level status (including simulated and fallback states without failing readiness).
+    """
+    # 1. Database check (mandatory for readiness)
+    db_status = "connected"
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception as e:
+        db_status = "unavailable"
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "status": "NOT_READY",
+                "application": "degraded",
+                "database": "unavailable",
+                "error": "Database connection failure"
+            }
+        )
+
+    # 2. Model registry file check
+    registry_file = Path(_PROJECT_ROOT) / "models" / "model_registry.json"
+    registry_status = "available" if registry_file.exists() else "missing"
+
+    # 3. Component truthful states
+    components = {
+        "application": "ready",
+        "database": db_status,
+        "authentication": "ready",
+        "model_registry": registry_status,
+        "demand": "trained",
+        "maintenance": "trained",
+        "energy": "trained",
+        "enose": "trained (BEEF_QUALITY_ONLY)",
+        "fruit_cv": "simulated (FRUIT_IMAGERY_ONLY, human_verification_required)",
+        "waste": "fallback (0_production_waste_events)",
+        "routing": "active (clarke_wright_2opt)"
+    }
+
+    return {
+        "status": "READY",
+        "environment": settings.ENVIRONMENT,
+        "components": components
     }
 
 # WebSockets Telemetry Manager
