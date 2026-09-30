@@ -34,7 +34,7 @@ Across the global food supply chain, over one-third of all food produced is lost
 reServeAi/
 ├── .github/workflows/          # GitHub Actions CI/CD test and build pipelines
 ├── backend/                    # Modular FastAPI Enterprise Service
-│   ├── auth/                   # JWT OAuth2 authentication & Argon2 hashing
+│   ├── auth/                   # JWT OAuth2 authentication & PBKDF2 (100k rounds) hashing
 │   ├── users/                  # User identity & RBAC permission controls
 │   ├── organizations/          # Multi-tenant institutional cluster governance
 │   ├── kitchens/               # Kitchen facilities & live operational overviews
@@ -175,6 +175,9 @@ python backend/scripts/demo_walkthrough.py
 ## 📚 6. Documentation Suite
 
 Comprehensive architecture, API, and engineering specifications:
+- [Final Engineering Handover](docs/FINAL_HANDOVER.md) — Comprehensive 26-section technical handover manual.
+- [Demonstration Guide](docs/DEMO_GUIDE.md) — Step-by-step practical demonstration script for evaluators.
+- [Evaluation Cheat Sheet](docs/EVALUATION_CHEAT_SHEET.md) — Viva examination questions and technical justifications.
 - [System Architecture](docs/architecture.md) — Multi-tier architecture, data flow diagrams, and component interactions.
 - [Production Deployment Guide](docs/deployment.md) — Docker Compose, Nginx, SSL, environment variables, and troubleshooting.
 - [User Roles & Permissions Matrix](docs/user_roles.md) — 10 role definitions and endpoint authorization matrix.
@@ -186,16 +189,17 @@ Comprehensive architecture, API, and engineering specifications:
 
 ---
 
-## 📊 7. Key Scientific & Algorithmic Baselines
+## ⚠️ 7. Explicit Operational Limitations
 
-1. **Demand Forecasting**: Evaluated against the **Genpact Food Demand Forecasting** dataset with lag features ($t-1, t-7$), 7-day rolling means, and promotion price elasticity.
-2. **Quality Assessment**: Evaluated against the **Kaggle Fresh and Rotten Fruits & Vegetables** dataset using transfer learning on **EfficientNet-B0**.
-3. **Predictive Maintenance**: Tested against the **UC Irvine AI4I 2020 Predictive Maintenance Dataset** incorporating physical boundary equations for Heat Dissipation (HDF), Power (PWF), and Overstrain (OSF) failures.
-4. **Sustainability Multipliers**: Derived from **Poore & Nemecek (Science 2018)** and **Our World in Data (OWID)** lifecycle assessment footprints.
+In strict adherence to engineering honesty, the following constraints are documented and enforced across the platform:
+1. **Fruit CV Simulation:** The Fruit Freshness Classifier operates in simulation mode (`spectral-spatial-v2.1-SIMULATED`) because the legitimate 2.79 GB Mendeley training dataset could not be downloaded through host network filters. **Human verification is strictly mandatory** before any food lot can be redistributed.
+2. **Waste ML Fallback:** Waste prediction operates in rule-based fallback mode (`rule-based-v1.0`) because the production database currently contains 0 real historical kitchen waste records. No synthetic waste logs are fabricated.
+3. **E-Nose Meat Quality Scope:** The E-Nose model is leakage-audited and strictly constrained to **BEEF QUALITY ONLY**. It must not be applied to poultry, fish, pork, or produce.
+4. **Remote Git Push:** Git push to GitHub remote origin is blocked by the host enterprise FortiGate deep packet inspection SSL certificate policy (`schannel: SEC_E_UNTRUSTED_ROOT`). All code is preserved on local branch `main`.
 
 ---
 
 ## 🏆 8. SIH 2026 Competitive Edge
 - **Zero Mock UI**: Fully functional, dynamic dark glassmorphism console with live simulations, real API mutations, and instant feedback.
-- **Enterprise-Grade Architecture**: 23 relational database entities, row-level locking, and unified WebSocket telemetry.
+- **Enterprise-Grade Architecture**: 16 relational database entities, row-level locking, and unified WebSocket telemetry.
 - **Academic & Regulatory Rigor**: Differentiates real dataset training dynamics from high-density simulation fixtures; enforces independent food safety beyond optical CV.
