@@ -319,48 +319,191 @@ export const KitchenDashboard: React.FC = () => {
                 Action Required
               </span>
             </div>
-            <p className="text-xs text-gray-400 mb-4">Batches nearing shelf-life limit within next 12 hours.</p>
+            <p className="text-xs text-gray-400 mb-5">Batches nearing shelf-life limit within next 12 hours.</p>
 
-            <div className="space-y-3">
-              {expiringBatches.length > 0 ? (
-                expiringBatches.map((batch: any) => (
-                  <div key={batch.id} className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-500/30 space-y-1.5">
-                    <div className="flex justify-between items-start">
-                      <span className="font-bold text-xs text-white">{batch.batch_number}</span>
-                      <span className="text-[10px] font-mono text-amber-400 font-bold">
-                        {batch.status}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-300">
-                      <span>Remaining: <strong>{batch.remaining_quantity_kg} kg</strong></span>
-                      <span 
-                        onClick={() => setWasteModalOpen(true)}
-                        className="text-rose-400 hover:underline cursor-pointer font-semibold"
-                      >
-                        Log Waste →
-                      </span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-500/30 space-y-1.5">
-                  <div className="flex justify-between items-start">
-                    <span className="font-bold text-xs text-white">Basmati Rice Batch #101</span>
-                    <span className="text-[10px] font-mono text-amber-400 font-bold">4.8h left</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-300">
-                    <span>Remaining: <strong>48.0 kg</strong></span>
-                    <span 
+            <style>{`
+              @keyframes floatDriftA {
+                0%   { transform: translate(0px, 0px) rotate(0deg); }
+                25%  { transform: translate(8px, -15px) rotate(1.5deg); }
+                50%  { transform: translate(-7px, -6px) rotate(-1deg); }
+                75%  { transform: translate(9px, -20px) rotate(2deg); }
+                100% { transform: translate(0px, 0px) rotate(0deg); }
+              }
+              @keyframes floatDriftB {
+                0%   { transform: translate(0px, 0px) rotate(0deg); }
+                25%  { transform: translate(-11px, -10px) rotate(-2deg); }
+                50%  { transform: translate(7px, -22px) rotate(1.5deg); }
+                75%  { transform: translate(-8px, -12px) rotate(-1.5deg); }
+                100% { transform: translate(0px, 0px) rotate(0deg); }
+              }
+              @keyframes floatDriftC {
+                0%   { transform: translate(0px, 0px) rotate(0deg); }
+                30%  { transform: translate(12px, -18px) rotate(2.5deg); }
+                55%  { transform: translate(-10px, -26px) rotate(-2deg); }
+                80%  { transform: translate(6px, -9px) rotate(1deg); }
+                100% { transform: translate(0px, 0px) rotate(0deg); }
+              }
+              @keyframes floatDriftD {
+                0%   { transform: translate(0px, 0px) rotate(0deg); }
+                20%  { transform: translate(-9px, -19px) rotate(-2deg); }
+                50%  { transform: translate(11px, -11px) rotate(2deg); }
+                75%  { transform: translate(-6px, -24px) rotate(-1deg); }
+                100% { transform: translate(0px, 0px) rotate(0deg); }
+              }
+              @keyframes floatDriftE {
+                0%   { transform: translate(0px, 0px) rotate(0deg); }
+                30%  { transform: translate(-12px, -14px) rotate(1.5deg); }
+                60%  { transform: translate(10px, -23px) rotate(-2.5deg); }
+                85%  { transform: translate(-5px, -7px) rotate(1deg); }
+                100% { transform: translate(0px, 0px) rotate(0deg); }
+              }
+              @keyframes moteOrbit {
+                0%   { transform: translate(0, 0) scale(1);   opacity: 0; }
+                20%  { opacity: 0.9; }
+                50%  { opacity: 0.5; }
+                80%  { opacity: 0.8; }
+                100% { transform: translate(var(--mx), var(--my)) scale(0.4); opacity: 0; }
+              }
+              .bubble-float-A { animation: floatDriftA var(--float-dur, 4.8s) ease-in-out infinite; }
+              .bubble-float-B { animation: floatDriftB var(--float-dur, 5.4s) ease-in-out infinite; }
+              .bubble-float-C { animation: floatDriftC var(--float-dur, 4.2s) ease-in-out infinite; }
+              .bubble-float-D { animation: floatDriftD var(--float-dur, 6.0s) ease-in-out infinite; }
+              .bubble-float-E { animation: floatDriftE var(--float-dur, 5.1s) ease-in-out infinite; }
+              .batch-bubble:hover {
+                transform: translateY(-16px) scale(1.1) !important;
+                z-index: 30;
+                animation-play-state: paused !important;
+              }
+              .mote {
+                position: absolute;
+                width: 3px; height: 3px;
+                border-radius: 50%;
+                background: #10b981;
+                box-shadow: 0 0 5px 2px #10b981aa;
+                animation: moteOrbit var(--m-dur, 3s) ease-out infinite;
+                animation-delay: var(--m-delay, 0s);
+                pointer-events: none;
+                top: 50%; left: 50%;
+                margin: -1.5px 0 0 -1.5px;
+              }
+            `}</style>
+
+            <div className="flex flex-wrap items-center justify-center gap-3.5 min-h-[300px] py-4">
+              {(() => {
+                const defaultBatches = [
+                  { id: 101, batch_number: 'BATCH-2026-K1-101', remaining_quantity_kg: 85,  status: 'NEARING_EXPIRY' },
+                  { id: 102, batch_number: 'BATCH-2026-K1-102', remaining_quantity_kg: 105, status: 'NEARING_EXPIRY' },
+                  { id: 107, batch_number: 'BATCH-2026-K1-107', remaining_quantity_kg: 68,  status: 'NEARING_EXPIRY' },
+                  { id: 103, batch_number: 'BATCH-2026-K1-103', remaining_quantity_kg: 125, status: 'OPTIMAL' },
+                  { id: 104, batch_number: 'BATCH-2026-K1-104', remaining_quantity_kg: 145, status: 'OPTIMAL' },
+                  { id: 105, batch_number: 'BATCH-2026-K1-105', remaining_quantity_kg: 165, status: 'OPTIMAL' },
+                  { id: 106, batch_number: 'BATCH-2026-K1-106', remaining_quantity_kg: 185, status: 'OPTIMAL' },
+                  { id: 108, batch_number: 'BATCH-2026-K1-108', remaining_quantity_kg: 95,  status: 'OPTIMAL' },
+                  { id: 109, batch_number: 'BATCH-2026-K1-109', remaining_quantity_kg: 115, status: 'OPTIMAL' },
+                  { id: 110, batch_number: 'BATCH-2026-K1-110', remaining_quantity_kg: 140, status: 'OPTIMAL' },
+                ];
+
+                const activeBatches = [...expiringBatches];
+                for (const item of defaultBatches) {
+                  if (activeBatches.length >= 10) break;
+                  if (!activeBatches.some((b: any) => b.id === item.id || b.batch_number === item.batch_number)) {
+                    activeBatches.push(item);
+                  }
+                }
+                const displayBatches = activeBatches.slice(0, 10);
+
+                const floatSettings = [
+                  { animClass: 'bubble-float-A', dur: '4.6s', delay: '-1.2s', offsetY: '-8px' },
+                  { animClass: 'bubble-float-B', dur: '5.8s', delay: '-3.4s', offsetY: '12px' },
+                  { animClass: 'bubble-float-C', dur: '4.1s', delay: '-0.7s', offsetY: '-14px' },
+                  { animClass: 'bubble-float-D', dur: '6.3s', delay: '-4.2s', offsetY: '8px' },
+                  { animClass: 'bubble-float-E', dur: '5.0s', delay: '-2.1s', offsetY: '-4px' },
+                  { animClass: 'bubble-float-B', dur: '4.7s', delay: '-3.8s', offsetY: '14px' },
+                  { animClass: 'bubble-float-A', dur: '6.1s', delay: '-1.5s', offsetY: '-10px' },
+                  { animClass: 'bubble-float-D', dur: '4.9s', delay: '-2.7s', offsetY: '6px' },
+                  { animClass: 'bubble-float-C', dur: '6.5s', delay: '-0.4s', offsetY: '-12px' },
+                  { animClass: 'bubble-float-E', dur: '5.3s', delay: '-4.8s', offsetY: '4px' },
+                ];
+
+                return displayBatches.map((batch: any, index: number) => {
+                  const isExpiring = batch.status === 'NEARING_EXPIRY';
+                  const kg = Math.round(batch.remaining_quantity_kg);
+                  const size = kg <= 70 ? 70 : kg <= 95 ? 80 : kg <= 125 ? 90 : kg <= 150 ? 100 : kg <= 170 ? 110 : 120;
+                  const shortCode = batch.batch_number?.split('-').pop() || `#${batch.id}`;
+                  const setting = floatSettings[index % floatSettings.length];
+
+                  // 6 luminous motes at varied radii for optimal green bubbles
+                  const motes = !isExpiring ? [
+                    { mx: '32px',  my: '-30px', dur: '2.8s', delay: '0s'    },
+                    { mx: '-34px', my: '-22px', dur: '3.4s', delay: '0.6s'  },
+                    { mx: '28px',  my: '34px',  dur: '2.6s', delay: '1.1s'  },
+                    { mx: '-26px', my: '32px',  dur: '3.8s', delay: '0.3s'  },
+                    { mx: '38px',  my: '10px',  dur: '3.1s', delay: '1.5s'  },
+                    { mx: '-32px', my: '8px',   dur: '2.9s', delay: '0.8s'  },
+                  ] : [];
+
+                  return (
+                    <div
+                      key={batch.id}
+                      className={`batch-bubble ${setting.animClass} relative group cursor-pointer transition-all duration-300`}
+                      style={{
+                        '--float-dur': setting.dur,
+                        animationDelay: setting.delay,
+                        marginTop: setting.offsetY,
+                      } as React.CSSProperties}
                       onClick={() => setWasteModalOpen(true)}
-                      className="text-rose-400 hover:underline cursor-pointer font-semibold"
                     >
-                      Log Waste →
-                    </span>
-                  </div>
-                </div>
-              )}
+                      {/* Mote particles for OPTIMAL green bubbles */}
+                      {motes.map((m, mi) => (
+                        <span
+                          key={mi}
+                          className="mote"
+                          style={{
+                            '--mx': m.mx,
+                            '--my': m.my,
+                            '--m-dur': m.dur,
+                            '--m-delay': m.delay,
+                          } as React.CSSProperties}
+                        />
+                      ))}
+
+                      {/* Circle */}
+                      <div
+                        className={`rounded-full flex flex-col items-center justify-center border-2 shadow-lg transition-all duration-300 relative
+                          ${isExpiring
+                            ? 'bg-amber-950/60 border-amber-400/60 shadow-amber-500/20 group-hover:border-amber-400 group-hover:shadow-amber-500/40'
+                            : 'bg-emerald-950/50 border-emerald-500/40 shadow-emerald-500/10 group-hover:border-emerald-400 group-hover:shadow-emerald-500/40 group-hover:shadow-lg'
+                          }`}
+                        style={{
+                          width: size,
+                          height: size,
+                          boxShadow: !isExpiring ? '0 0 18px 2px #10b98122, inset 0 0 12px #10b98110' : undefined,
+                        }}
+                      >
+                        <span className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${isExpiring ? 'text-amber-400' : 'text-emerald-400'}`}>
+                          {shortCode}
+                        </span>
+                        <span className="text-white font-black text-sm leading-tight">
+                          {kg} <span className="text-[10px] font-normal text-gray-400">kg</span>
+                        </span>
+
+                        {/* Hover overlay: Log Waste */}
+                        <span className="absolute inset-0 rounded-full flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[10px] font-bold text-rose-400">
+                          Log →
+                        </span>
+                      </div>
+
+                      {/* Expiring pulse ring */}
+                      {isExpiring && (
+                        <span className="absolute inset-0 rounded-full border-2 border-amber-400/40 animate-ping" style={{ animationDuration: '2s' }} />
+                      )}
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
+
 
           {/* Waste Prediction Box */}
           <div className="glass-card p-6 rounded-2xl border-l-4 border-l-cyan-500">

@@ -129,6 +129,10 @@ def seed_database(force: bool = False):
             FoodItem(name="Fresh Dairy Paneer (Raw)", category="DAIRY", perishable_type="HIGHLY_PERISHABLE", default_shelf_life_hours=48, carbon_footprint_per_kg=4.2, water_footprint_per_kg=920.0),
             FoodItem(name="Multigrain Sandwich Bread & Buns", category="BAKERY", perishable_type="SEMI_PERISHABLE", default_shelf_life_hours=72, carbon_footprint_per_kg=1.5, water_footprint_per_kg=480.0),
             FoodItem(name="Seasonal Mixed Fruit Salad", category="FRUITS", perishable_type="HIGHLY_PERISHABLE", default_shelf_life_hours=24, carbon_footprint_per_kg=0.7, water_footprint_per_kg=280.0),
+            FoodItem(name="Chilled Greek Yogurt Parfait", category="DAIRY", perishable_type="HIGHLY_PERISHABLE", default_shelf_life_hours=36, carbon_footprint_per_kg=2.1, water_footprint_per_kg=410.0),
+            FoodItem(name="Artisan Sourdough Loaves", category="BAKERY", perishable_type="SEMI_PERISHABLE", default_shelf_life_hours=48, carbon_footprint_per_kg=1.2, water_footprint_per_kg=380.0),
+            FoodItem(name="Organic Spinach & Kale Medley", category="VEGETABLES", perishable_type="HIGHLY_PERISHABLE", default_shelf_life_hours=24, carbon_footprint_per_kg=0.4, water_footprint_per_kg=210.0),
+            FoodItem(name="Spiced Chickpea Curry & Pulao", category="COOKED_MEALS", perishable_type="HIGHLY_PERISHABLE", default_shelf_life_hours=16, carbon_footprint_per_kg=2.0, water_footprint_per_kg=480.0),
         ]
         db.add_all(food_items)
         db.commit()

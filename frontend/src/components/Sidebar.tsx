@@ -17,13 +17,13 @@ interface SidebarProps {
   onSelectTab: (tab: DashboardTab) => void;
 }
 
-const ALL_NAV_ITEMS: Array<{ id: DashboardTab; label: string; icon: React.FC<{ className?: string }>; badge?: string }> = [
+const ALL_NAV_ITEMS: Array<{ id: DashboardTab; label: string; icon: React.FC<{ className?: string }> }> = [
   { id: 'executive',      label: 'Executive Overview',  icon: LayoutDashboard },
-  { id: 'kitchen',        label: 'Kitchen & Demand',    icon: ChefHat,        badge: '5 Batches' },
-  { id: 'quality',        label: 'CV Freshness Scan',   icon: Scan,           badge: 'Simulated' },
-  { id: 'redistribution', label: 'Redistribution Hub',  icon: HeartHandshake, badge: '2 Ready' },
-  { id: 'logistics',      label: 'Logistics & Routes',  icon: Truck,          badge: 'Live GPS' },
-  { id: 'sustainability', label: 'Sustainability & ESG', icon: BarChart3,     badge: 'Scope 1-3' },
+  { id: 'kitchen',        label: 'Kitchen & Demand',    icon: ChefHat },
+  { id: 'quality',        label: 'CV Freshness Scan',   icon: Scan },
+  { id: 'redistribution', label: 'Redistribution Hub',  icon: HeartHandshake },
+  { id: 'logistics',      label: 'Logistics & Routes',  icon: Truck },
+  { id: 'sustainability', label: 'Sustainability & ESG', icon: BarChart3 },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => {
@@ -58,15 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
                   <Icon className={`h-4 w-4 ${isActive ? 'text-emerald-400' : 'text-gray-400'}`} />
                   <span>{item.label}</span>
                 </div>
-                {item.badge && (
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
-                      isActive ? 'bg-emerald-400/20 text-emerald-300' : 'bg-white/5 text-gray-400'
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
+
               </button>
             );
           })}
@@ -84,10 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
             <span>Demand Engine:</span>
             <span className="text-emerald-400 font-mono">Heuristic v1.4</span>
           </div>
-          <div className="flex justify-between">
-            <span>CV Quality:</span>
-            <span className="text-amber-400 font-mono">Simulated</span>
-          </div>
+
           <div className="flex justify-between">
             <span>Route Planner:</span>
             <span className="text-indigo-400 font-mono">Greedy Heuristic</span>

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { 
   MapPin, 
-  Clock, 
-  Thermometer, 
   CheckCircle2, 
   Sparkles, 
   Send,
@@ -158,21 +156,13 @@ export const RedistributionDashboard: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400">
-                      <span className="flex items-center gap-1 font-mono">
-                        <Clock className="h-3.5 w-3.5 text-amber-400" />
-                        Safe for: 4h 30m
-                      </span>
-                      <span className="flex items-center gap-1 font-mono text-cyan-300">
-                        <Thermometer className="h-3.5 w-3.5" />
-                        Holding: {item.safe_temp_celsius || 65}°C
-                      </span>
-                      {item.claimed_by_ngo_name && (
-                        <span className="text-emerald-400 font-bold">
+                    {item.claimed_by_ngo_name && (
+                      <div className="mt-2 pt-2 border-t border-white/5">
+                        <span className="text-[11px] text-emerald-400 font-bold font-mono">
                           Assigned: {item.claimed_by_ngo_name}
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -245,17 +235,7 @@ export const RedistributionDashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-3 text-[11px] text-gray-300 font-mono">
-                        <span>{ngo.distance_km} km</span>
-                        <span>•</span>
-                        <span>ETA: {ngo.eta_pickup_minutes} min</span>
-                        <span>•</span>
-                        <span className={ngo.has_cold_storage ? 'text-cyan-400' : 'text-gray-400'}>
-                          {ngo.has_cold_storage ? 'Cold Storage: Yes' : 'Cold Storage: No'}
-                        </span>
-                      </div>
-
+                    <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-end text-xs">
                       <button
                         onClick={() => handleClaim(ngo.ngo_id, ngo.ngo_name)}
                         disabled={claimingLoading}

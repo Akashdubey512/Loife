@@ -3,7 +3,6 @@ import {
   Truck, 
   MapPin, 
   ShieldCheck, 
-  Radio,
   CheckCircle2,
   Navigation,
   KeyRound
@@ -117,11 +116,6 @@ export const LogisticsDashboard: React.FC = () => {
             <Navigation className={`h-3.5 w-3.5 ${optimizing ? 'animate-spin' : ''}`} />
             <span>{optimizing ? 'Re-Routing...' : 'Re-Optimise Route'}</span>
           </button>
-
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs font-mono text-emerald-300">
-            <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
-            <span>GPS: Active ({activeRoute?.status || 'IN_TRANSIT'})</span>
-          </div>
         </div>
       </div>
 

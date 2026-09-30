@@ -18,7 +18,146 @@ import storySmallActions from '../assets/illustrations/brand/story_small_actions
 
 export const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#080b11] text-gray-100 flex flex-col font-sans overflow-x-hidden selection:bg-[#F2C45A]/30 selection:text-[#FFF6E8]">
+    <div className="min-h-screen bg-[#080b11] text-gray-100 flex flex-col font-sans overflow-x-hidden selection:bg-[#F2C45A]/30 selection:text-[#FFF6E8] relative">
+
+      {/* ══════════════════════════════════════════════════════════
+          GLOBAL AMBIENT CANVAS — fixed, covers full page height
+          pointer-events-none so it never blocks clicks
+      ══════════════════════════════════════════════════════════ */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <style>{`
+          /* ── Keyframes ── */
+          @keyframes beamPulse {
+            0%, 100% { opacity: 0.50; }
+            50%       { opacity: 0.72; }
+          }
+          @keyframes dustFloat {
+            0%   { transform: translateY(0px) translateX(0px); opacity: 0; }
+            15%  { opacity: 0.55; }
+            85%  { opacity: 0.35; }
+            100% { transform: translateY(200px) translateX(var(--dx, 6px)); opacity: 0; }
+          }
+          @keyframes leafDrift {
+            0%   { transform: translate(0, 0) rotate(var(--r0, 0deg)) scale(1);   opacity: 0; }
+            8%   { opacity: var(--op, 0.45); }
+            92%  { opacity: var(--op, 0.45); }
+            100% { transform: translate(var(--lx, 30px), var(--ly, 380px)) rotate(var(--r1, 120deg)) scale(0.65); opacity: 0; }
+          }
+        `}</style>
+
+        {/* ── Left edge golden beam ── */}
+        <div style={{
+          position: 'absolute', inset: 0, width: '140px',
+          background: 'linear-gradient(to right, rgba(242,196,90,0.11) 0%, rgba(242,196,90,0.04) 60%, transparent 100%)',
+          animation: 'beamPulse 9s ease-in-out infinite',
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0, width: '70px',
+          background: 'linear-gradient(to right, rgba(255,220,100,0.15) 0%, rgba(255,220,100,0.03) 75%, transparent 100%)',
+          animation: 'beamPulse 9s ease-in-out infinite',
+          animationDelay: '1.5s',
+        }} />
+
+        {/* ── Right edge golden beam ── */}
+        <div style={{
+          position: 'absolute', inset: 0, left: 'auto', width: '140px', right: 0,
+          background: 'linear-gradient(to left, rgba(242,196,90,0.11) 0%, rgba(242,196,90,0.04) 60%, transparent 100%)',
+          animation: 'beamPulse 9s ease-in-out infinite',
+          animationDelay: '4.5s',
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0, left: 'auto', width: '70px', right: 0,
+          background: 'linear-gradient(to left, rgba(255,220,100,0.15) 0%, rgba(255,220,100,0.03) 75%, transparent 100%)',
+          animation: 'beamPulse 9s ease-in-out infinite',
+          animationDelay: '6s',
+        }} />
+
+        {/* ── Dust motes — left beam ── */}
+        {[
+          { top: '6%',  left: '2%',  dur: '7s',  delay: '0s',   dx: '4px'  },
+          { top: '22%', left: '6%',  dur: '9s',  delay: '2s',   dx: '-3px' },
+          { top: '38%', left: '3%',  dur: '11s', delay: '0.5s', dx: '5px'  },
+          { top: '55%', left: '7%',  dur: '8s',  delay: '4s',   dx: '-4px' },
+          { top: '72%', left: '2%',  dur: '10s', delay: '1.5s', dx: '3px'  },
+          { top: '88%', left: '5%',  dur: '7.5s',delay: '3.5s', dx: '-5px' },
+        ].map((d, i) => (
+          <div key={`dl-${i}`} style={{
+            position: 'absolute', top: d.top, left: d.left,
+            width: '2.5px', height: '2.5px', borderRadius: '50%',
+            background: 'rgba(255,215,80,0.6)',
+            boxShadow: '0 0 4px 2px rgba(255,215,80,0.25)',
+            animation: `dustFloat ${d.dur} ease-in-out infinite`,
+            animationDelay: d.delay,
+            '--dx': d.dx,
+          } as React.CSSProperties} />
+        ))}
+
+        {/* ── Dust motes — right beam ── */}
+        {[
+          { top: '10%', right: '3%',  dur: '8.5s', delay: '1.2s', dx: '-4px' },
+          { top: '27%', right: '7%',  dur: '10s',  delay: '2.8s', dx: '3px'  },
+          { top: '44%', right: '2%',  dur: '12s',  delay: '0.2s', dx: '-6px' },
+          { top: '61%', right: '5%',  dur: '7.5s', delay: '5s',   dx: '4px'  },
+          { top: '78%', right: '3%',  dur: '9.5s', delay: '3s',   dx: '-3px' },
+          { top: '92%', right: '6%',  dur: '8s',   delay: '1.8s', dx: '5px'  },
+        ].map((d, i) => (
+          <div key={`dr-${i}`} style={{
+            position: 'absolute', top: d.top, right: (d as any).right,
+            width: '2.5px', height: '2.5px', borderRadius: '50%',
+            background: 'rgba(255,215,80,0.6)',
+            boxShadow: '0 0 4px 2px rgba(255,215,80,0.25)',
+            animation: `dustFloat ${d.dur} ease-in-out infinite`,
+            animationDelay: d.delay,
+            '--dx': d.dx,
+          } as React.CSSProperties} />
+        ))}
+
+        {/* ── Floating golden petals — distributed across full page height ── */}
+        {[
+          // Left column petals — spread from 2% to 90%
+          { top: '3%',  left: '1%',  lx: '16px',  ly: '380px', r0: '-10deg', r1: '95deg',  dur: '16s', delay: '0s',    op: 0.42, size: 10, blur: 0   },
+          { top: '12%', left: '8%',  lx: '-20px', ly: '350px', r0: '6deg',   r1: '-80deg', dur: '20s', delay: '3.5s',  op: 0.35, size: 7,  blur: 0.5 },
+          { top: '23%', left: '3%',  lx: '26px',  ly: '400px', r0: '-18deg', r1: '110deg', dur: '18s', delay: '7s',    op: 0.40, size: 12, blur: 0   },
+          { top: '35%', left: '6%',  lx: '-14px', ly: '360px', r0: '12deg',  r1: '-65deg', dur: '22s', delay: '1.5s',  op: 0.32, size: 8,  blur: 1   },
+          { top: '47%', left: '2%',  lx: '20px',  ly: '380px', r0: '-6deg',  r1: '80deg',  dur: '17s', delay: '10s',   op: 0.38, size: 11, blur: 0   },
+          { top: '58%', left: '9%',  lx: '-18px', ly: '340px', r0: '9deg',   r1: '-90deg', dur: '19s', delay: '4.5s',  op: 0.30, size: 7,  blur: 0.5 },
+          { top: '70%', left: '4%',  lx: '24px',  ly: '320px', r0: '-15deg', r1: '105deg', dur: '15s', delay: '8s',    op: 0.36, size: 9,  blur: 0   },
+          { top: '82%', left: '7%',  lx: '-10px', ly: '280px', r0: '5deg',   r1: '-55deg', dur: '21s', delay: '2s',    op: 0.28, size: 6,  blur: 1   },
+          { top: '91%', left: '2%',  lx: '18px',  ly: '300px', r0: '-20deg', r1: '75deg',  dur: '14s', delay: '6s',    op: 0.32, size: 8,  blur: 0   },
+          // Right column petals — spread from 5% to 88%
+          { top: '6%',  right: '2%', lx: '-18px', ly: '380px', r0: '7deg',   r1: '-90deg', dur: '17s', delay: '1.5s',  op: 0.42, size: 11, blur: 0   },
+          { top: '17%', right: '7%', lx: '22px',  ly: '360px', r0: '-5deg',  r1: '100deg', dur: '21s', delay: '5s',    op: 0.36, size: 8,  blur: 0.5 },
+          { top: '29%', right: '3%', lx: '-12px', ly: '400px', r0: '14deg',  r1: '-70deg', dur: '19s', delay: '9s',    op: 0.32, size: 13, blur: 0   },
+          { top: '41%', right: '8%', lx: '10px',  ly: '350px', r0: '-8deg',  r1: '75deg',  dur: '15s', delay: '12s',   op: 0.28, size: 7,  blur: 1   },
+          { top: '53%', right: '2%', lx: '-22px', ly: '380px', r0: '11deg',  r1: '-85deg', dur: '18s', delay: '3s',    op: 0.38, size: 10, blur: 0   },
+          { top: '65%', right: '6%', lx: '16px',  ly: '340px', r0: '-3deg',  r1: '90deg',  dur: '22s', delay: '6.5s',  op: 0.30, size: 8,  blur: 0.5 },
+          { top: '76%', right: '3%', lx: '-14px', ly: '310px', r0: '8deg',   r1: '-60deg', dur: '16s', delay: '11s',   op: 0.34, size: 12, blur: 0   },
+          { top: '87%', right: '7%', lx: '12px',  ly: '260px', r0: '-12deg', r1: '70deg',  dur: '13s', delay: '0.5s',  op: 0.26, size: 6,  blur: 1   },
+        ].map((leaf, i) => (
+          <div
+            key={`leaf-${i}`}
+            style={{
+              position: 'absolute',
+              top: leaf.top,
+              ...((leaf as any).left !== undefined
+                ? { left: (leaf as any).left }
+                : { right: (leaf as any).right }),
+              width: leaf.size,
+              height: leaf.size * 0.6,
+              borderRadius: '50% 0 50% 0',
+              background: `rgba(242,196,90,${leaf.op})`,
+              boxShadow: `0 0 ${leaf.blur + 2}px 1px rgba(242,196,90,0.28)`,
+              filter: leaf.blur ? `blur(${leaf.blur}px)` : undefined,
+              animation: `leafDrift ${leaf.dur} ease-in-out infinite`,
+              animationDelay: leaf.delay,
+              '--lx': leaf.lx,
+              '--ly': leaf.ly,
+              '--r0': leaf.r0,
+              '--r1': leaf.r1,
+            } as any}
+          />
+        ))}
+      </div>
       {/* ── Top Navigation ── */}
       <nav className="sticky top-0 z-50 glass-panel border-b border-white/10 px-6 py-3 flex items-center justify-between backdrop-blur-xl">
         <div className="flex items-center gap-3">
@@ -59,7 +198,9 @@ export const LandingPage: React.FC = () => {
       </nav>
 
       {/* ── Hero Section ── */}
-      <section className="relative flex flex-col items-center justify-center px-6 pt-10 pb-20 overflow-hidden">
+      <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-10 pb-20 overflow-hidden">
+        {/* Ambient hero glow — remains local to hero for the center spotlight feel */}
+
         {/* Ambient atmospheric glows */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-[#174C3C]/25 via-[#F2C45A]/10 to-transparent blur-[130px] rounded-full" />
@@ -115,8 +256,9 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
+
       {/* ── Community Storytelling Section ── */}
-      <section id="stories" className="px-6 py-24 max-w-6xl mx-auto w-full">
+      <section id="stories" className="relative z-10 px-6 py-24 max-w-6xl mx-auto w-full">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#174C3C]/30 border border-[#77B7A5]/30 text-[#77B7A5] text-xs font-semibold uppercase tracking-wider mb-3">
             <Heart className="h-3 w-3 text-[#D97757]" /> Community Stories
@@ -259,7 +401,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Problem Statement ── */}
-      <section className="px-6 py-20 max-w-5xl mx-auto w-full">
+      <section className="relative z-10 px-6 py-20 max-w-5xl mx-auto w-full">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-black text-white mb-4">The Challenge We Solve</h2>
           <p className="text-gray-400 max-w-2xl mx-auto text-sm leading-relaxed">
@@ -287,7 +429,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ── The Loife Solution ── */}
-      <section id="solution" className="px-6 py-20 bg-gradient-to-b from-transparent via-[#174C3C]/10 to-transparent">
+      <section id="solution" className="relative z-10 px-6 py-20 bg-gradient-to-b from-transparent via-[#174C3C]/10 to-transparent">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-black text-white mb-4">The Loife Circular Platform</h2>
@@ -321,7 +463,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Workflow Steps ── */}
-      <section id="workflow" className="px-6 py-20 max-w-5xl mx-auto w-full">
+      <section id="workflow" className="relative z-10 px-6 py-20 max-w-5xl mx-auto w-full">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-black text-white mb-4">Five Steps: From Kitchen to Community</h2>
           <p className="text-gray-400 max-w-xl mx-auto text-sm">A seamless, closed-loop circular redistribution workflow.</p>
@@ -356,7 +498,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Built for Every Stakeholder ── */}
-      <section id="roles" className="px-6 py-20 bg-gradient-to-b from-transparent via-[#174C3C]/10 to-transparent">
+      <section id="roles" className="relative z-10 px-6 py-20 bg-gradient-to-b from-transparent via-[#174C3C]/10 to-transparent">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-black text-white mb-4">Dedicated Persona Dashboards</h2>
@@ -385,7 +527,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Call to Action ── */}
-      <section className="px-6 py-20 max-w-5xl mx-auto w-full text-center">
+      <section className="relative z-10 px-6 py-20 max-w-5xl mx-auto w-full text-center">
         <div className="loife-surface-warm p-12 rounded-3xl border border-[#F2C45A]/30 relative overflow-hidden">
           <div className="relative z-10">
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
@@ -415,7 +557,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-white/10 px-6 py-10 bg-[#06080D]">
+      <footer className="relative z-10 border-t border-white/10 px-6 py-10 bg-[#06080D]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <LoifeLogo size="sm" showTagline={true} />

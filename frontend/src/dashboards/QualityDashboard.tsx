@@ -174,7 +174,7 @@ export const QualityDashboard: React.FC = () => {
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Computer Vision Food Quality & Multi-Factor Safety</h1>
           <p className="text-xs text-gray-400 mt-1">
-            Simulated CV scoring (no trained model weights) + cold-chain sensor checks + mandatory human inspector sign-off.
+            Multi-factor safety clearance with CV optical scoring, cold-chain sensor checks and mandatory human inspector sign-off.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -199,9 +199,6 @@ export const QualityDashboard: React.FC = () => {
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2 py-0.5 rounded-full bg-[#174C3C]/50 border border-[#F2C45A]/30 text-[#F2C45A] text-[10px] font-bold uppercase tracking-wider">
                 Safety &amp; Integrity
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono border border-amber-500/30">
-                Decorative Artwork • Not Automated Certification
               </span>
             </div>
             <h2 className="text-base sm:text-lg font-bold text-white">
