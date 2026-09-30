@@ -1,0 +1,153 @@
+[
+  {
+    "model_name": "demand_forecasting",
+    "model_version": "trained-lightgbm-v1.0",
+    "dataset": "genpact_demand",
+    "dataset_hash": "d02ad2665d65db74",
+    "trained_at": "2026-09-30T17:51:29.696932+00:00",
+    "algorithm": "LightGBM",
+    "features": [
+      "center_id",
+      "meal_id",
+      "checkout_price",
+      "base_price",
+      "emailer_for_promotion",
+      "homepage_featured",
+      "week",
+      "discount_pct",
+      "week_sin",
+      "week_cos"
+    ],
+    "metrics": {
+      "baseline_mae": 76.0,
+      "baseline_rmse": 96.34,
+      "RandomForest_mae": 73.15,
+      "LightGBM_mae": 72.79,
+      "XGBoost_mae": 75.06,
+      "RandomForest_rmse": 92.7,
+      "LightGBM_rmse": 92.14,
+      "XGBoost_rmse": 94.98,
+      "RandomForest_r2": 0.0736,
+      "LightGBM_r2": 0.0848,
+      "XGBoost_r2": 0.0275,
+      "best_test_mae": 72.79,
+      "best_test_rmse": 92.14,
+      "best_test_r2": 0.0848
+    },
+    "artifact_path": "D:\\ReServeAi\\models\\demand\\demand_model.joblib",
+    "status": "candidate",
+    "limitations": [
+      "Trained on Genpact hackathon data",
+      "Does not account for weather, special events, or menu changes",
+      "Requires retraining on institution-specific consumption data for production use"
+    ]
+  },
+  {
+    "model_name": "predictive_maintenance",
+    "model_version": "trained-lightgbm-v1.0",
+    "dataset": "ai4i_2020",
+    "dataset_hash": "b60f12fdf5f2d3eb",
+    "trained_at": "2026-09-30T17:51:30.574690+00:00",
+    "algorithm": "LightGBM",
+    "features": [
+      "Air temperature [K]",
+      "Process temperature [K]",
+      "Rotational speed [rpm]",
+      "Torque [Nm]",
+      "Tool wear [min]",
+      "Product ID_encoded"
+    ],
+    "metrics": {
+      "RandomForest": {
+        "accuracy": 0.9795,
+        "precision": 0.814,
+        "recall": 0.5147,
+        "f1": 0.6306,
+        "roc_auc": 0.9569
+      },
+      "XGBoost": {
+        "accuracy": 0.981,
+        "precision": 0.7083,
+        "recall": 0.75,
+        "f1": 0.7286,
+        "roc_auc": 0.97
+      },
+      "LightGBM": {
+        "accuracy": 0.983,
+        "precision": 0.7429,
+        "recall": 0.7647,
+        "f1": 0.7536,
+        "roc_auc": 0.9797
+      }
+    },
+    "best_metrics": {
+      "accuracy": 0.983,
+      "precision": 0.7429,
+      "recall": 0.7647,
+      "f1": 0.7536,
+      "roc_auc": 0.9797
+    },
+    "artifact_path": "D:\\ReServeAi\\models\\maintenance\\maintenance_model.joblib",
+    "status": "candidate",
+    "limitations": [
+      "Trained on UCI AI4I 2020 synthetic industrial data",
+      "Not specific to food service kitchen equipment",
+      "Applicable for cold-chain equipment anomaly detection research"
+    ]
+  },
+  {
+    "model_name": "energy_forecasting",
+    "model_version": "trained-lightgbm-v1.0",
+    "dataset": "appliances_energy",
+    "dataset_hash": "d82a59b20c7adf79",
+    "trained_at": "2026-09-30T17:51:33.504027+00:00",
+    "algorithm": "LightGBM",
+    "features": [
+      "lights",
+      "T1",
+      "RH_1",
+      "T2",
+      "RH_2",
+      "T3",
+      "RH_3",
+      "T4",
+      "RH_4",
+      "T5",
+      "RH_5",
+      "T6",
+      "RH_6",
+      "T7",
+      "RH_7",
+      "T8",
+      "RH_8",
+      "T9",
+      "RH_9",
+      "T_out",
+      "Press_mm_hg",
+      "RH_out",
+      "Windspeed",
+      "Visibility",
+      "Tdewpoint"
+    ],
+    "metrics": {
+      "baseline_mae": 52.83,
+      "baseline_rmse": 90.89,
+      "RandomForest_mae": 215.3568,
+      "RandomForest_rmse": 233.5247,
+      "RandomForest_r2": -5.6038,
+      "LightGBM_mae": 103.444,
+      "LightGBM_rmse": 121.906,
+      "LightGBM_r2": -0.7996,
+      "best_test_mae": 103.44,
+      "best_test_rmse": 121.91,
+      "best_test_r2": -0.7996
+    },
+    "artifact_path": "D:\\ReServeAi\\models\\energy\\energy_model.joblib",
+    "status": "candidate",
+    "limitations": [
+      "Trained on Belgian residential appliance data",
+      "Not directly calibrated for institutional kitchen energy profiles",
+      "Serves as proof-of-concept for facility energy analytics"
+    ]
+  }
+]

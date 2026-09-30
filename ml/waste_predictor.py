@@ -42,7 +42,7 @@ class FoodWastePredictionEngine:
             "waste_probability": waste_prob,
             "root_cause": root_cause,
             "recommended_mitigation": mitigation,
-            "model_version": "waste-xgb-v2.1"
+            "model_version": "rule-based-v1.0"
         }
 
 waste_engine = FoodWastePredictionEngine()

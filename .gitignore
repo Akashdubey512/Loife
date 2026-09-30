@@ -39,10 +39,19 @@ frontend/build/
 *.h5
 *.onnx
 *.pkl
+*.joblib
 *.pt
 *.pth
+*.safetensors
 data/raw/
+data/interim/
 data/processed/
+models/demand/
+models/waste/
+models/quality/
+models/sensor/
+models/maintenance/
+models/energy/
 mlruns/
 .dvc/cache/
 

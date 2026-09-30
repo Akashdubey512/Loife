@@ -73,7 +73,7 @@ class VehicleRoutingOptimizer:
             "vehicle_capacity_kg": self.vehicle_capacity_kg,
             "stops_count": len(ordered_route),
             "optimized_waypoints": ordered_route,
-            "routing_engine": "OR-Tools CVRPTW Solver (v9.8)"
+            "routing_engine": "greedy-nearest-neighbor-v1.0"
         }
 
 logistics_optimizer = VehicleRoutingOptimizer()
