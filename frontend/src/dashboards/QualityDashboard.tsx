@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { apiService } from '../services/api';
 import { QualityScanResult } from '../types';
+import storySmallActions from '../assets/illustrations/brand/story_small_actions.png';
 
 export const QualityDashboard: React.FC = () => {
   const [scanning, setScanning] = useState(false);
@@ -173,7 +174,7 @@ export const QualityDashboard: React.FC = () => {
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Computer Vision Food Quality & Multi-Factor Safety</h1>
           <p className="text-xs text-gray-400 mt-1">
-            EfficientNet-B0 visual inference integrated with IoT cold-chain telemetry and mandatory human verification clearance.
+            Simulated CV scoring (no trained model weights) + cold-chain sensor checks + mandatory human inspector sign-off.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -181,6 +182,39 @@ export const QualityDashboard: React.FC = () => {
           <span className="text-xs font-mono font-bold px-2 py-1 rounded bg-white/5 text-emerald-400 border border-white/10">
             Multi-Factor Verified
           </span>
+        </div>
+      </div>
+
+      {/* Loife Quality Care Banner */}
+      <div className="loife-surface-warm p-4 md:p-5 rounded-2xl border border-[#F2C45A]/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-xl overflow-hidden shrink-0 border border-white/10 shadow-md">
+            <img
+              src={storySmallActions}
+              alt="Food care and inspection symbol"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2 py-0.5 rounded-full bg-[#174C3C]/50 border border-[#F2C45A]/30 text-[#F2C45A] text-[10px] font-bold uppercase tracking-wider">
+                Safety &amp; Integrity
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono border border-amber-500/30">
+                Decorative Artwork • Not Automated Certification
+              </span>
+            </div>
+            <h2 className="text-base sm:text-lg font-bold text-white">
+              Every safe meal is a promise kept.
+            </h2>
+            <p className="text-xs text-gray-300 max-w-xl mt-0.5 leading-relaxed">
+              Safe food redistribution relies on rigorous human verification alongside sensory checks and temperature records. Only inspected batches proceed to community partners.
+            </p>
+          </div>
+        </div>
+        <div className="shrink-0 text-right hidden lg:block">
+          <span className="text-[10px] uppercase font-bold text-[#F2C45A] tracking-wider block">FSSAI Protocol</span>
+          <span className="text-xs text-gray-400">Mandatory Human Sign-off</span>
         </div>
       </div>
 
@@ -260,7 +294,7 @@ export const QualityDashboard: React.FC = () => {
             {scanning ? (
               <div className="h-96 flex flex-col items-center justify-center gap-3">
                 <RefreshCw className="h-8 w-8 text-emerald-400 animate-spin" />
-                <p className="text-xs font-bold text-white">Running EfficientNet-B0 Multi-Factor Analysis...</p>
+                <p className="text-xs font-bold text-white">Running Simulated CV Assessment...</p>
                 <span className="text-[11px] text-gray-500 font-mono">Verifying optical morphology, cold-chain logs & shelf-life constraints</span>
               </div>
             ) : scanResult ? (

@@ -80,7 +80,7 @@ export const SustainabilityDashboard: React.FC = () => {
   const handleDownloadReportFile = () => {
     if (!auditReport) return;
     const reportText = `=====================================================
-reServe AI — SCOPE 3 ESG FOOD RESCUE AUDIT CERTIFICATE
+Loife — SCOPE 3 ESG FOOD RESCUE AUDIT CERTIFICATE
 =====================================================
 Certificate ID: ${auditReport.report_id}
 Audit Date: ${new Date(auditReport.audit_date).toUTCString()}
@@ -114,7 +114,7 @@ Assumptions:
 ${auditReport.assumptions.map((a, i) => `  [${i + 1}] ${a}`).join('\n')}
 
 Cryptographic Ledger Verification: SHA-256 OTP Verified
-Issuing Authority: reServe AI ESG Auditing Subsystem
+Issuing Authority: Loife ESG Auditing Subsystem
 =====================================================`;
 
     const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
@@ -307,7 +307,7 @@ Issuing Authority: reServe AI ESG Auditing Subsystem
                 )}
 
                 <div className="p-4 rounded-xl bg-white/5 space-y-2 text-xs text-gray-300 font-mono">
-                  <div className="flex justify-between"><span>Issuing Platform:</span><span className="text-white">reServe AI Ledger Subsystem</span></div>
+                  <div className="flex justify-between"><span>Issuing Platform:</span><span className="text-white">Loife Ledger Subsystem</span></div>
                   <div className="flex justify-between"><span>Institutional Partner:</span><span className="text-white">{auditReport.organization_name}</span></div>
                   <div className="flex justify-between"><span>Reporting Period:</span><span className="text-white">{auditReport.reporting_period}</span></div>
                   <div className="flex justify-between"><span>Verified Physical Rescued:</span><span className="text-emerald-400 font-bold">{auditReport.measured_rescued_kg.toLocaleString()} kg</span></div>

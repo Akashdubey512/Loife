@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { apiService } from '../services/api';
 import { DemandItem } from '../types';
+import storyThaliMindful from '../assets/illustrations/food/story_thali_mindful.png';
 
 export const KitchenDashboard: React.FC = () => {
   const [kitchens, setKitchens] = useState<any[]>([]);
@@ -36,8 +37,7 @@ export const KitchenDashboard: React.FC = () => {
   const [wasteQuantityKg, setWasteQuantityKg] = useState<string>('8.5');
   const [wasteCause, setWasteCause] = useState<string>('OVERPRODUCTION');
   const [wasteStage, setWasteStage] = useState<string>('LEFTOVER_BUFFET');
-  const [wasteLoading, setWasteLoading] = useState(false);
-  const [wasteSuccessMsg, setWasteSuccessMsg] = useState<string | null>(null);
+  const [wasteErrorMsg, setWasteErrorMsg] = useState<string | null>(null);
 
   // Load Kitchens and Food items on mount
   useEffect(() => {
@@ -95,48 +95,58 @@ export const KitchenDashboard: React.FC = () => {
       setTimeout(() => {
         setForecastModalOpen(false);
       }, 1500);
-    } catch {
-      setForecastSuccessMsg('Forecast generated and stored locally in production schedule.');
-      setTimeout(() => {
-        setForecastModalOpen(false);
-      }, 1500);
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      setForecastSuccessMsg(null);
+      // Show the actual server error instead of masking it
+      alert(`Forecast failed: ${typeof detail === 'string' ? detail : 'API error — check backend connection.'}`);
     } finally {
       setForecastingLoading(false);
     }
   };
 
   // Handle Log Waste Event (Workflow B)
+  const [wasteLoading, setWasteLoading] = useState(false);
+  const [wasteSuccessMsg, setWasteSuccessMsg] = useState<string | null>(null);
+
   const handleLogWaste = async (e: React.FormEvent) => {
     e.preventDefault();
     setWasteLoading(true);
     setWasteSuccessMsg(null);
+    setWasteErrorMsg(null);
     try {
       const qty = parseFloat(wasteQuantityKg) || 5.0;
       await apiService.logWasteEvent({
         kitchen_id: selectedKitchenId,
         food_item_id: selectedFoodItemId,
-        batch_id: expiringBatches[0]?.id || 1,
+        batch_id: expiringBatches[0]?.id || undefined,
         quantity_wasted_kg: qty,
         primary_cause: wasteCause,
         waste_stage: wasteStage
       });
-
-      setWasteSuccessMsg(`Waste event logged (${qty} kg). Inventory stock decremented atomically.`);
+      setWasteSuccessMsg(`Waste event logged: ${qty} kg.`);
       await loadKitchenData(selectedKitchenId);
       setTimeout(() => {
         setWasteModalOpen(false);
         setWasteSuccessMsg(null);
       }, 1500);
-    } catch {
-      setWasteSuccessMsg(`Waste event recorded for ${wasteQuantityKg} kg.`);
-      setTimeout(() => {
-        setWasteModalOpen(false);
-        setWasteSuccessMsg(null);
-      }, 1500);
+    } catch (err: any) {
+      // Never silently claim success on error
+      const detail = err?.response?.data?.detail;
+      const status = err?.response?.status;
+      if (status === 401) {
+        setWasteErrorMsg('Unauthorised: please log in and try again.');
+      } else if (typeof detail === 'string') {
+        setWasteErrorMsg(`API error: ${detail}`);
+      } else {
+        setWasteErrorMsg('Waste logging failed. Check backend connection.');
+      }
     } finally {
       setWasteLoading(false);
     }
   };
+
+
 
   return (
     <div className="space-y-6">
@@ -145,7 +155,7 @@ export const KitchenDashboard: React.FC = () => {
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Kitchen Operations & Predictive Demand</h1>
           <p className="text-xs text-gray-400 mt-1">
-            Dynamic portioning, production scheduling, and inventory shelf-life management powered by LightGBM.
+            Dynamic portioning, production scheduling, and inventory management via heuristic forecasting engine.
           </p>
         </div>
 
@@ -201,19 +211,36 @@ export const KitchenDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Kitchen Assistant Recommendation Banner */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-teal-950/20 to-gray-900 border border-emerald-500/30 flex items-start gap-3.5 shadow-lg">
-        <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
-          <Sparkles className="h-5 w-5" />
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">AI Chef Operational Advisory (Active Shift)</h3>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">94% Confidence</span>
+      {/* Loife Kitchen Mindful Prep Banner */}
+      <div className="loife-surface-warm p-4 md:p-5 rounded-2xl border border-[#F2C45A]/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-xl overflow-hidden shrink-0 border border-white/10 shadow-md">
+            <img
+              src={storyThaliMindful}
+              alt="Mindful thali prep"
+              className="w-full h-full object-cover"
+            />
           </div>
-          <p className="text-xs text-gray-300 mt-1 leading-relaxed">
-            Campus attendance tracking indicates a <strong className="text-emerald-400">+12% footfall surge</strong> for Lunch due to annual tech symposium. Recommended production for <strong>Basmati Rice & Dal</strong> adjusted to 190.0 kg. Batch #101 has 48kg expiring in 5 hours—prioritize immediate recipe inclusion or dispatch to NGO.
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2 py-0.5 rounded-full bg-[#174C3C]/50 border border-[#F2C45A]/30 text-[#F2C45A] text-[10px] font-bold uppercase tracking-wider">
+                Plan with care • Prepare with purpose
+              </span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">94% Confidence</span>
+            </div>
+            <h2 className="text-sm sm:text-base font-bold text-white">
+              AI Chef Operational Advisory (Active Shift)
+            </h2>
+            <p className="text-xs text-gray-300 max-w-2xl mt-0.5 leading-relaxed">
+              Campus attendance tracking indicates a <strong className="text-emerald-400">+12% footfall surge</strong> for Lunch. Basmati Rice &amp; Dal recommended production adjusted to 190.0 kg. Batch #101 has 48kg expiring in 5 hours—prioritize immediate recipe inclusion or dispatch to NGO.
+            </p>
+          </div>
+        </div>
+        <div className="shrink-0 text-right hidden lg:block">
+          <p className="text-xs font-serif text-[#F2C45A] italic">
+            “इतना ही लो थाली में”
           </p>
+          <span className="text-[10px] text-gray-400">Respect every ingredient</span>
         </div>
       </div>
 
@@ -224,7 +251,7 @@ export const KitchenDashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-bold text-white">Today's Demand Forecast & Recommended Production</h2>
-              <p className="text-xs text-gray-400">LightGBM predictive engine factoring inventory on hand & student attendance</p>
+              <p className="text-xs text-gray-400">Heuristic forecasting engine factoring inventory on hand & attendance</p>
             </div>
             <button
               onClick={() => loadKitchenData(selectedKitchenId)}
@@ -340,7 +367,7 @@ export const KitchenDashboard: React.FC = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Shift Waste Risk Forecast</h3>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
-                XGBoost ML
+                Rule-based waste risk
               </span>
             </div>
             <div className="flex items-baseline gap-2">
@@ -431,7 +458,7 @@ export const KitchenDashboard: React.FC = () => {
               </div>
 
               <p className="text-[11px] text-gray-400 bg-white/5 p-3 rounded-xl border border-white/5">
-                ℹ️ The LightGBM forecasting engine queries 7-day historical consumption lags, checks current inventory on hand, subtracts available stock, and persists the net recommended production quantity directly to the kitchen schedule.
+                ℹ️ The heuristic forecasting engine computes a rolling-average + day-of-week prediction, checks inventory on hand, subtracts available stock, and persists the net recommended production quantity to the kitchen schedule.
               </p>
 
               <div className="pt-2 flex justify-end gap-2">
@@ -447,7 +474,7 @@ export const KitchenDashboard: React.FC = () => {
                   disabled={forecastingLoading}
                   className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-950 shadow-lg shadow-emerald-500/20 disabled:opacity-50"
                 >
-                  {forecastingLoading ? 'Computing LightGBM Forecast...' : 'Generate & Persist Forecast'}
+                  {forecastingLoading ? 'Computing Forecast...' : 'Generate & Persist Forecast'}
                 </button>
               </div>
             </form>
@@ -541,7 +568,7 @@ export const KitchenDashboard: React.FC = () => {
               </div>
 
               <p className="text-[11px] text-gray-400 bg-white/5 p-3 rounded-xl border border-white/5">
-                ⚠️ Recording a verified waste event updates the inventory batch quantity atomically, triggers financial loss accounting (INR 110/kg), and retrains the XGBoost surplus prevention model.
+                ⚠️ Recording a verified waste event updates the inventory batch quantity atomically, triggers financial loss accounting (INR 110/kg), and feeds the waste reduction analytics dashboard.
               </p>
 
               <div className="pt-2 flex justify-end gap-2">

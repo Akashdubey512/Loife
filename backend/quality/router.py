@@ -205,7 +205,9 @@ async def scan_food_image(
         defects_detected=defects,
         sensor_safety_cleared=sensor_cleared,
         human_verified=False,
-        food_safety_verdict=food_safety_verdict
+        food_safety_verdict=food_safety_verdict,
+        simulated=cv_result.get("simulated", True),
+        simulation_notice=cv_result.get("simulation_notice"),
     )
 
 @router.post("/scans/{scan_id}/verify", response_model=QualityVerificationResponse)

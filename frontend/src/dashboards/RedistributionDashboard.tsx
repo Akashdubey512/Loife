@@ -6,10 +6,12 @@ import {
   CheckCircle2, 
   Sparkles, 
   Send,
-  AlertTriangle
+  AlertTriangle,
+  Heart
 } from 'lucide-react';
 import { apiService } from '../services/api';
 import { SurplusItem, NGOMatch } from '../types';
+import heroBreadSharing from '../assets/illustrations/brand/hero_bread_sharing.png';
 
 export const RedistributionDashboard: React.FC = () => {
   const [surplusList, setSurplusList] = useState<SurplusItem[]>([]);
@@ -90,6 +92,34 @@ export const RedistributionDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Loife NGO Community Care Banner */}
+      <div className="loife-surface-warm p-4 md:p-5 rounded-2xl border border-[#F2C45A]/35 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-xl overflow-hidden shrink-0 border border-white/10 shadow-md">
+            <img
+              src={heroBreadSharing}
+              alt="Sharing bread with dignity"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#174C3C]/50 border border-[#F2C45A]/30 text-[#F2C45A] text-[10px] font-bold uppercase tracking-wider mb-1">
+              <Heart className="h-3 w-3 text-[#D97757]" /> Community Redistribution &amp; Dignity
+            </div>
+            <h2 className="text-base sm:text-lg font-bold text-white">
+              Share a meal. Share a little more hope.
+            </h2>
+            <p className="text-xs text-gray-300 max-w-xl mt-0.5 leading-relaxed">
+              Every surplus lot declared by campus and institutional dining is verified for quality and reserved for trusted charity partners to nourish local families with dignity.
+            </p>
+          </div>
+        </div>
+        <div className="shrink-0 text-right hidden lg:block">
+          <span className="text-[10px] uppercase font-bold text-[#F2C45A] tracking-wider block">Verified Partners</span>
+          <span className="text-xs text-gray-400">Robin Hood Army • Feeding India</span>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left 6 Cols: Available Surplus Batches */}
         <div className="lg:col-span-6 space-y-4">
@@ -164,7 +194,7 @@ export const RedistributionDashboard: React.FC = () => {
                 </p>
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">
-                OR-Tools Engine
+                Matching Engine
               </span>
             </div>
 

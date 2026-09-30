@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { apiService } from '../services/api';
 import { DeliveryRoute } from '../types';
+import storyCommunityDining from '../assets/illustrations/community/story_community_dining.png';
 
 export const LogisticsDashboard: React.FC = () => {
   const [activeRoute, setActiveRoute] = useState<DeliveryRoute | null>(null);
@@ -37,7 +38,7 @@ export const LogisticsDashboard: React.FC = () => {
     try {
       const optimized = await apiService.optimizeRoutes({ kitchen_id: 1, request_ids: [1, 2, 3] });
       setActiveRoute(optimized);
-      setPodSuccessMessage(`Capacitated Vehicle Route optimized using Google OR-Tools! Route Code: ${optimized.route_code}, Stops: ${optimized.waypoints?.length || 0}`);
+      setPodSuccessMessage(`Route optimised using greedy heuristic algorithm! Route Code: ${optimized.route_code}, Stops: ${optimized.waypoints?.length || 0}`);
     } catch {
       await fetchRoutes();
     } finally {
@@ -104,7 +105,7 @@ export const LogisticsDashboard: React.FC = () => {
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Smart Logistics & Fleet Route Optimization</h1>
           <p className="text-xs text-gray-400 mt-1">
-            Real-time OR-Tools multi-stop Capacitated Vehicle Routing (CVRP) with temperature telemetry and OTP verification.
+            Multi-stop route planning using a greedy heuristic with temperature telemetry and OTP verification.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -114,13 +115,41 @@ export const LogisticsDashboard: React.FC = () => {
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-gray-950 text-xs font-bold transition shadow-md shadow-emerald-500/20 disabled:opacity-50"
           >
             <Navigation className={`h-3.5 w-3.5 ${optimizing ? 'animate-spin' : ''}`} />
-            <span>{optimizing ? 'Re-Routing...' : 'Re-Run OR-Tools CVRP'}</span>
+            <span>{optimizing ? 'Re-Routing...' : 'Re-Optimise Route'}</span>
           </button>
 
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs font-mono text-emerald-300">
             <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
             <span>GPS: Active ({activeRoute?.status || 'IN_TRANSIT'})</span>
           </div>
+        </div>
+      </div>
+
+      {/* Loife Logistics Community Banner */}
+      <div className="loife-surface-sage p-4 md:p-5 rounded-2xl border border-[#77B7A5]/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-xl overflow-hidden shrink-0 border border-white/10 shadow-md">
+            <img
+              src={storyCommunityDining}
+              alt="Community delivery destination"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#145B59]/40 border border-[#77B7A5]/30 text-[#77B7A5] text-[10px] font-bold uppercase tracking-wider mb-1">
+              <Truck className="h-3 w-3 text-[#38BDF8]" /> Fleet Dispatch &amp; Care
+            </div>
+            <h2 className="text-base sm:text-lg font-bold text-white">
+              Every delivery carries more than food.
+            </h2>
+            <p className="text-xs text-gray-300 max-w-xl mt-0.5 leading-relaxed">
+              Optimized multi-stop routing connects surplus from campus dining directly with community dining centers, preserving cold-chain integrity and ensuring timely delivery.
+            </p>
+          </div>
+        </div>
+        <div className="shrink-0 text-right hidden lg:block">
+          <span className="text-[10px] uppercase font-bold text-[#77B7A5] tracking-wider block">Real-time Handover</span>
+          <span className="text-xs text-gray-400">Secure OTP &amp; Temp Log</span>
         </div>
       </div>
 
@@ -220,7 +249,7 @@ export const LogisticsDashboard: React.FC = () => {
         <div className="lg:col-span-5 space-y-4">
           <div className="glass-card p-6 rounded-2xl">
             <h2 className="text-base font-bold text-white mb-1">Optimized Stop Sequence</h2>
-            <p className="text-xs text-gray-400 mb-4">OR-Tools dynamic waypoint order factoring food shelf life</p>
+            <p className="text-xs text-gray-400 mb-4">Greedy heuristic waypoint order factoring food shelf life</p>
 
             <div className="space-y-4">
               {activeRoute?.waypoints.map((wp, index) => {

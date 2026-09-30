@@ -1,7 +1,14 @@
 import os
+import sys
+from pathlib import Path
 from typing import List, Union
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import model_validator, field_validator
+
+# Ensure project root is in sys.path
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
 
 INSECURE_DEFAULT_SECRETS = {
     "reserve-ai-super-secure-production-ready-jwt-secret-key-2026",
@@ -12,7 +19,11 @@ INSECURE_DEFAULT_SECRETS = {
 }
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(case_sensitive=True, env_file=".env", extra="allow")
+    model_config = SettingsConfigDict(
+        case_sensitive=True,
+        env_file=(str(_PROJECT_ROOT / ".env"), ".env"),
+        extra="allow"
+    )
 
     PROJECT_NAME: str = "reServe AI - Smart Food Waste Reduction & Redistribution"
     API_V1_STR: str = "/api/v1"

@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict
 class QualityScanResponse(BaseModel):
     id: int
     food_item_id: int
-    food_name: str
+    food_name: Optional[str] = None
     image_url: str
     freshness_score: float
     freshness_level: str
@@ -17,6 +17,8 @@ class QualityScanResponse(BaseModel):
     sensor_safety_cleared: bool = True
     human_verified: bool = False
     food_safety_verdict: str = "PENDING_HUMAN_VERIFICATION"
+    simulated: bool = True
+    simulation_notice: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class QualityResultOut(BaseModel):

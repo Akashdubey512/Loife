@@ -2,9 +2,26 @@
 
 @layer base {
   :root {
-    --bg-main: #0a0d14;
+    --bg-main: #080b11;
     --bg-card: rgba(17, 24, 39, 0.7);
     --border-card: rgba(255, 255, 255, 0.08);
+
+    /* Loife Design System Tokens */
+    --loife-forest: #174C3C;
+    --loife-deep-teal: #145B59;
+    --loife-sage: #E8F2EC;
+    --loife-warm-cream: #FFF6E8;
+    --loife-harvest: #F2C45A;
+    --loife-terracotta: #D97757;
+    --loife-soft-orange: #F4A261;
+    --loife-warm-brown: #8B6246;
+    --loife-muted-teal: #77B7A5;
+    --loife-soft-blue: #DCE9F4;
+    --loife-muted-lavender: #EAE2F4;
+    --loife-charcoal: #29332F;
+    --loife-soft-ivory: #F8F7F2;
+
+    /* Semantic Accents */
     --accent-emerald: #10b981;
     --accent-cyan: #06b6d4;
     --accent-violet: #8b5cf6;
@@ -94,3 +111,42 @@
 .pulse-beacon {
   animation: beacon 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }
+
+/* Loife Warm Storytelling Surfaces */
+.loife-surface-warm {
+  background: linear-gradient(135deg, rgba(255, 246, 232, 0.05) 0%, rgba(242, 196, 90, 0.03) 100%), rgba(23, 76, 60, 0.2);
+  border: 1px solid rgba(242, 196, 90, 0.18);
+  box-shadow: 0 8px 30px -4px rgba(242, 196, 90, 0.06);
+}
+
+.loife-surface-sage {
+  background: linear-gradient(135deg, rgba(232, 242, 236, 0.06) 0%, rgba(119, 183, 165, 0.03) 100%), rgba(20, 91, 89, 0.25);
+  border: 1px solid rgba(119, 183, 165, 0.2);
+  box-shadow: 0 8px 30px -4px rgba(20, 91, 89, 0.08);
+}
+
+.loife-surface-terracotta {
+  background: linear-gradient(135deg, rgba(217, 119, 87, 0.07) 0%, rgba(244, 162, 97, 0.03) 100%), rgba(23, 76, 60, 0.2);
+  border: 1px solid rgba(217, 119, 87, 0.22);
+}
+
+/* Gentle float animation */
+@keyframes loifeFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.loife-float {
+  animation: loifeFloat 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-beacon,
+  .loife-float,
+  .animate-ping,
+  .animate-pulse {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+

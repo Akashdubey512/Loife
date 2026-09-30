@@ -1,6 +1,13 @@
 import os
+import sys
 import json
+from pathlib import Path
 from contextlib import asynccontextmanager
+
+# Ensure project root is in sys.path when invoked from within backend/ or root
+_PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles

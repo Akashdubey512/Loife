@@ -42,6 +42,7 @@ class EsgAuditReportOut(BaseModel):
     audit_date: datetime
     reporting_period: str
     measured_rescued_kg: float
+    total_food_saved_kg: float  # alias for measured_rescued_kg — consistent with analytics API
     pipeline_potential_kg: float
     co2e_avoided_kg: float
     virtual_water_conserved_liters: float

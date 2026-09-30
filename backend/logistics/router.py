@@ -21,7 +21,7 @@ router = APIRouter()
 def list_routes(
     status: Optional[str] = Query(None, description="Filter by route status"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_roles(["LOGISTICS_COORDINATOR", "SUPER_ADMIN", "KITCHEN_MANAGER"]))
 ):
     query = db.query(Route)
     if status:

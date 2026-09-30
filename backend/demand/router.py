@@ -56,7 +56,7 @@ def get_demand_forecast(
                 model_version=p.model_version
             ))
     else:
-        # Generate fresh forecast using domain ML pipeline (LightGBM Genpact baseline)
+        # Generate fresh forecast using heuristic demand engine (Genpact dataset-compatible schema)
         food_items = db.query(FoodItem).all()
         if not food_items:
             food_items = [
@@ -112,7 +112,7 @@ def get_demand_forecast(
                 confidence_score=ml_pred["confidence"],
                 recommended_production_kg=recommended_prod,
                 surplus_risk_probability=ml_pred["surplus_probability"],
-                model_version=f"{ml_pred['model_type']}-genpact-v1.4"
+                model_version=ml_pred.get('model_version', 'heuristic-v1.4')
             )
             db.add(db_pred)
 
@@ -160,7 +160,7 @@ def predict_demand(
     ).order_by(DemandHistory.date.desc()).limit(7).all()
     lags = [h.actual_consumption_kg for h in history] if history else [175.0, 168.0, 182.0, 170.0, 174.0, 180.0, 169.0]
 
-    # 2. Run LightGBM ML model
+    # 2. Run heuristic demand engine (no trained model weights loaded)
     pred_result = demand_engine.predict(
         center_id=req.kitchen_id,
         meal_id=req.food_item_id,
@@ -196,7 +196,7 @@ def predict_demand(
         confidence_score=pred_result["confidence_score"],
         recommended_production_kg=net_prep,
         surplus_risk_probability=pred_result["surplus_risk_probability"],
-        model_version=pred_result.get("model_version", "lgbm-genpact-v1.4")
+        model_version=pred_result.get("model_version", "heuristic-v1.4")
     )
     db.add(new_pred)
     db.commit()
@@ -213,6 +213,6 @@ def predict_demand(
         recommended_production_kg=net_prep,
         surplus_risk_probability=pred_result["surplus_risk_probability"],
         confidence_score=pred_result["confidence_score"],
-        model_version=pred_result.get("model_version", "lgbm-genpact-v1.4")
+        model_version=pred_result.get("model_version", "heuristic-v1.4")
     )
 

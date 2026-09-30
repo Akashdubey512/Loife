@@ -82,6 +82,16 @@ export const apiService = {
     localStorage.removeItem('reserve_token');
   },
 
+  register: async (payload: {
+    email: string;
+    password: string;
+    full_name: string;
+    phone_number?: string;
+  }): Promise<any> => {
+    const res = await apiClient.post('/auth/register', payload);
+    return res.data;
+  },
+
   // Kitchens & Food Items
   getKitchens: async (): Promise<any[]> => {
     try {
@@ -125,16 +135,18 @@ export const apiService = {
       const res = await apiClient.get('/analytics/executive-stats');
       return res.data;
     } catch (err) {
+      // Offline fallback: return zeros rather than fabricated numbers.
+      // The frontend shows "No verified deliveries yet" when total_food_saved_kg === 0.
       return handleFallback('getExecutiveStats', {
-        total_food_saved_kg: 14250.0,
-        waste_reduction_percentage: 38.2,
-        carbon_reduction_kg: 35625.0,
-        water_saved_liters: 7837500.0,
-        energy_efficiency_kwh: 12400.0,
-        operational_cost_savings_inr: 1567500.0,
-        meals_redistributed: 28500,
-        active_kitchens_monitored: 6,
-        active_ngo_partners: 14,
+        total_food_saved_kg: 0,
+        waste_reduction_percentage: 0,
+        carbon_reduction_kg: 0,
+        water_saved_liters: 0,
+        energy_efficiency_kwh: 0,
+        operational_cost_savings_inr: 0,
+        meals_redistributed: 0,
+        active_kitchens_monitored: 0,
+        active_ngo_partners: 0,
       }, err);
     }
   },
@@ -162,11 +174,11 @@ export const apiService = {
       return res.data.predictions;
     } catch (err) {
       return handleFallback('getDemandForecast', [
-        { food_item_id: 1, food_name: 'Basmati Rice & Dal Makhani', expected_demand_kg: 182.4, confidence_score: 0.94, recommended_production_kg: 190.0, surplus_risk_probability: 0.08, model_version: 'lgbm-genpact-v1.4' },
-        { food_item_id: 2, food_name: 'Paneer Butter Masala', expected_demand_kg: 145.0, confidence_score: 0.92, recommended_production_kg: 152.0, surplus_risk_probability: 0.11, model_version: 'lgbm-genpact-v1.4' },
-        { food_item_id: 3, food_name: 'Seasonal Mixed Vegetable Sabzi', expected_demand_kg: 110.5, confidence_score: 0.96, recommended_production_kg: 115.0, surplus_risk_probability: 0.05, model_version: 'lgbm-genpact-v1.4' },
-        { food_item_id: 4, food_name: 'Tandoori Whole Wheat Roti', expected_demand_kg: 220.0, confidence_score: 0.95, recommended_production_kg: 230.0, surplus_risk_probability: 0.06, model_version: 'lgbm-genpact-v1.4' },
-        { food_item_id: 5, food_name: 'Garden Cucumber & Beetroot Salad', expected_demand_kg: 68.0, confidence_score: 0.89, recommended_production_kg: 72.0, surplus_risk_probability: 0.14, model_version: 'lgbm-genpact-v1.4' }
+        { food_item_id: 1, food_name: 'Basmati Rice & Dal Makhani', expected_demand_kg: 182.4, confidence_score: 0.94, recommended_production_kg: 190.0, surplus_risk_probability: 0.08, model_version: 'heuristic-v1.4' },
+        { food_item_id: 2, food_name: 'Paneer Butter Masala', expected_demand_kg: 145.0, confidence_score: 0.92, recommended_production_kg: 152.0, surplus_risk_probability: 0.11, model_version: 'heuristic-v1.4' },
+        { food_item_id: 3, food_name: 'Seasonal Mixed Vegetable Sabzi', expected_demand_kg: 110.5, confidence_score: 0.96, recommended_production_kg: 115.0, surplus_risk_probability: 0.05, model_version: 'heuristic-v1.4' },
+        { food_item_id: 4, food_name: 'Tandoori Whole Wheat Roti', expected_demand_kg: 220.0, confidence_score: 0.95, recommended_production_kg: 230.0, surplus_risk_probability: 0.06, model_version: 'heuristic-v1.4' },
+        { food_item_id: 5, food_name: 'Garden Cucumber & Beetroot Salad', expected_demand_kg: 68.0, confidence_score: 0.89, recommended_production_kg: 72.0, surplus_risk_probability: 0.14, model_version: 'heuristic-v1.4' }
       ], err);
     }
   },

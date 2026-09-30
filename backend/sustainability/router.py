@@ -184,7 +184,7 @@ def get_executive_stats(
 
     # Aggregate kitchens and NGOs
     kitchen_count = db.query(func.count(Kitchen.id)).filter(Kitchen.organization_id == organization_id).scalar() or 1
-    ngo_count = db.query(func.count(Organization.id)).filter(Organization.type == "NGO").scalar() or 4
+    ngo_count = db.query(func.count(Organization.id)).filter(Organization.org_type == "NGO").scalar() or 4
 
     # Verified quantities without double counting
     verified_requests = (
@@ -301,6 +301,7 @@ def generate_esg_audit_report(
         audit_date=datetime.now(timezone.utc),
         reporting_period=reporting_period,
         measured_rescued_kg=round(measured_kg, 1),
+        total_food_saved_kg=round(measured_kg, 1),  # alias for frontend consistency
         pipeline_potential_kg=round(pipeline_kg, 1),
         co2e_avoided_kg=co2e_kg,
         virtual_water_conserved_liters=water_liters,
