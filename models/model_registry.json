@@ -139,24 +139,26 @@
   },
   {
     "model_name": "route_optimization",
-    "model_version": "greedy-nearest-neighbor-v1.0",
+    "model_version": "clarke-wright-2opt-v2.0",
     "status": "active",
     "dataset": "cvrplib_benchmark",
     "dataset_source": "CVRPLIB (PUC-Rio, https://galgos.inf.puc-rio.br/cvrplib/)",
     "trained_at": null,
-    "algorithm": "Greedy Nearest-Neighbor with Capacity Cutoff",
-    "artifact": "logistics/optimizer.py",
-    "benchmark": "reports/models/vrp_benchmark.md",
+    "algorithm": "Clarke-Wright Savings with Intra-Route 2-Opt Local Search (with Greedy fallback)",
+    "artifact": "backend/routing/engine.py, logistics/optimizer.py",
+    "benchmark": "reports/models/vrp_optimization_comparison.md",
     "metrics": {
       "benchmark_instances": 9,
       "feasibility": "100%",
-      "average_gap_pct": 40.24,
-      "average_runtime_ms": 1.25
+      "improved_average_gap_pct": 4.07,
+      "baseline_average_gap_pct": 39.12,
+      "average_runtime_ms": 4.55,
+      "mean_distance_reduction_pct": 25.7
     },
     "limitations": [
-      "Heuristic optimization algorithm, NOT a trained ML model",
-      "Produces feasible routes rapidly (< 3 ms) with an average +40.24% gap vs BKS optimal",
-      "Recommended for fast initial emergency dispatch; 2-opt or OR-Tools metaheuristics recommended for batch scheduling"
+      "Combinatorial optimization algorithm, NOT a trained machine learning model",
+      "100% capacity feasibility verified on CVRPLIB Set A & Set B instances",
+      "Sub-10ms deterministic runtime suitable for live API dispatch"
     ]
   }
 ]

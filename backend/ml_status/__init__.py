@@ -144,11 +144,11 @@ def get_ml_status(current_user: User = Depends(get_current_user)):
         engine_status.append({
             "engine": "route_optimization",
             "model_type": "heuristic_optimization",
-            "model_version": "greedy-nearest-neighbor-v1.0",
+            "model_version": "clarke-wright-2opt-v2.0",
             "trained": False,
             "status": "active",
             "benchmark": "cvrplib-augerat-9instances",
-            "average_gap_pct": 40.24,
+            "average_gap_pct": 4.07,
             "endpoint": "/api/v1/logistics/optimize-route",
         })
     except Exception as e:

@@ -1,0 +1,10 @@
+# reServe AI - Fruit Freshness Classifier Training Requirements (Phase 11)
+# Note: For use in an ISOLATED Python/Docker/Cloud GPU environment ONLY.
+# Do NOT install into host production Python environment if system disk (C:) is constrained.
+
+torch>=2.1.0
+torchvision>=0.16.0
+Pillow>=10.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+tqdm>=4.66.0
