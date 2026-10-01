@@ -36,4 +36,4 @@ services:
           name: reserve-ai-ml-service
           property: host
       - key: BACKEND_CORS_ORIGINS
-        value: "http://localhost:3000,http://localhost:5173,https://reserve-ai.vercel.app,https://reserve-ai-backend.onrender.com"
+        value: "http://localhost:3000,http://localhost:5173,https://loife.vercel.app,https://reserve-ai.vercel.app,https://reserve-ai-backend.onrender.com"
