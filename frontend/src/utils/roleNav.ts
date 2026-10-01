@@ -26,6 +26,7 @@ export const getAllowedTabs = (role: UserRole): DashboardTab[] => {
   switch (role) {
     case 'SUPER_ADMIN':
     case 'ORG_ADMIN':
+      return ['executive', 'kitchen', 'quality', 'redistribution', 'logistics', 'sustainability', 'ml_status'];
     case 'ESG_AUDITOR':
       return ['executive', 'kitchen', 'quality', 'redistribution', 'logistics', 'sustainability'];
     case 'KITCHEN_MANAGER':

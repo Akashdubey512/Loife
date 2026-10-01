@@ -66,30 +66,31 @@ export const LogisticsDashboard: React.FC = () => {
     try {
       const deliveries = await apiService.getDeliveries();
       const targetDelivery = deliveries.find(d => (activeRoute ? d.route_id === activeRoute.id : true) && d.status !== 'DELIVERED') || deliveries[0];
-      const deliveryId = targetDelivery?.id || 1;
+      if (!targetDelivery) {
+        setPodSuccessMessage('Error: No active delivery found for this route. Optimize a route first.');
+        return;
+      }
+      const deliveryId = targetDelivery.id;
 
       const res = await apiService.confirmDelivery(deliveryId, {
         verification_otp: otpCode,
-        recipient_sign_name: "Kabir Singhania (Robin Hood Army Representative)",
+        recipient_sign_name: "Authorized NGO Hub In-Charge",
         food_temp_celsius: parseFloat(deliveredFoodTemp) || 4.0,
         notes: "Recipient inspected thermal seals and confirmed lot count."
       });
-      setPodSuccessMessage(`Proof of Delivery verified for Delivery #${deliveryId}! Recipient OTP confirmed, cold-chain temperature certified at ${(res as any).temperature_at_delivery || deliveredFoodTemp}°C.`);
-      if (activeRoute) {
-        setActiveRoute({
-          ...activeRoute,
-          status: 'COMPLETED',
-          waypoints: activeRoute.waypoints.map(wp => ({ ...wp, status: 'COMPLETED' }))
-        });
-      }
-    } catch {
-      setPodSuccessMessage("Handover verified via OTP. Cold-chain log recorded at 3.8°C. Scope 3 ESG metrics updated.");
-      if (activeRoute) {
-        setActiveRoute({
-          ...activeRoute,
-          status: 'COMPLETED',
-          waypoints: activeRoute.waypoints.map(wp => ({ ...wp, status: 'COMPLETED' }))
-        });
+      setPodSuccessMessage(`Proof of Delivery verified for Delivery #${deliveryId}! OTP confirmed, cold-chain certified at ${deliveredFoodTemp}°C.`);
+      await fetchRoutes();
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      const status = err?.response?.status;
+      if (status === 400) {
+        setPodSuccessMessage(`Error: ${typeof detail === 'string' ? detail : 'Invalid OTP or delivery data.'}`);
+      } else if (status === 404) {
+        setPodSuccessMessage('Error: Delivery record not found. Optimize a route first.');
+      } else if (status === 401) {
+        setPodSuccessMessage('Error: Session expired. Please log in again.');
+      } else {
+        setPodSuccessMessage(`Error: ${typeof detail === 'string' ? detail : 'Delivery confirmation failed. Check backend connection.'}`);
       }
     } finally {
       setConfirmingPod(false);

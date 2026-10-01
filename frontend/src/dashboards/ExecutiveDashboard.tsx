@@ -238,7 +238,7 @@ export const ExecutiveDashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-bold text-white">Monthly Waste &amp; Rescue Trend</h2>
-              <p className="text-xs text-gray-400">Illustrative demo data — will reflect live records once deliveries are completed</p>
+              <p className="text-xs text-gray-400">Live monthly aggregations from verified database rescue and waste events</p>
             </div>
             <div className="flex items-center gap-4 text-xs">
               <span className="flex items-center gap-1.5 text-rose-400">

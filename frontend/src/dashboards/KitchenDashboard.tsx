@@ -24,6 +24,9 @@ export const KitchenDashboard: React.FC = () => {
   const [foodItems, setFoodItems] = useState<any[]>([]);
   const [expiringBatches, setExpiringBatches] = useState<any[]>([]);
   const [wastePrediction, setWastePrediction] = useState<any>(null);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [dataError, setDataError] = useState<string | null>(null);
+  const [initError, setInitError] = useState<string | null>(null);
 
   // Forecast Generator state
   const [forecastModalOpen, setForecastModalOpen] = useState(false);
@@ -42,32 +45,54 @@ export const KitchenDashboard: React.FC = () => {
   // Load Kitchens and Food items on mount
   useEffect(() => {
     const fetchInit = async () => {
-      const kList = await apiService.getKitchens();
-      setKitchens(kList);
-      if (kList.length > 0) {
-        setSelectedKitchenId(kList[0].id);
+      try {
+        const kList = await apiService.getKitchens();
+        setKitchens(kList);
+        if (kList.length > 0) {
+          setSelectedKitchenId(kList[0].id);
+        }
+      } catch (err: any) {
+        const detail = err?.response?.data?.detail;
+        setInitError(typeof detail === 'string' ? detail : 'Failed to load kitchen list. Check backend connection.');
       }
 
-      const fList = await apiService.getFoodItems();
-      setFoodItems(fList);
-      if (fList.length > 0) {
-        setSelectedFoodItemId(fList[0].id);
-      }
+      try {
+        const fList = await apiService.getFoodItems();
+        setFoodItems(fList);
+        if (fList.length > 0) {
+          setSelectedFoodItemId(fList[0].id);
+        }
+      } catch { /* non-critical */ }
     };
     fetchInit();
   }, []);
 
   // Load operational data whenever kitchen or slot changes
   const loadKitchenData = async (kId: number) => {
-    const [dData, wData, bData] = await Promise.all([
-      apiService.getDemandForecast(kId),
-      apiService.getWastePrediction(kId),
-      apiService.getExpiringBatches(kId)
-    ]);
-    setDemands(dData);
-    setWastePrediction(wData);
-    setExpiringBatches(bData);
+    setDataLoading(true);
+    setDataError(null);
+    try {
+      const [dData, wData, bData] = await Promise.allSettled([
+        apiService.getDemandForecast(kId),
+        apiService.getWastePrediction(kId),
+        apiService.getExpiringBatches(kId)
+      ]);
+      if (dData.status === 'fulfilled') setDemands(dData.value);
+      else setDemands([]);
+      if (wData.status === 'fulfilled') setWastePrediction(wData.value);
+      else setWastePrediction(null);
+      if (bData.status === 'fulfilled') setExpiringBatches(bData.value);
+      else setExpiringBatches([]);
+
+      const failed = [dData, wData, bData].filter(r => r.status === 'rejected');
+      if (failed.length === 3) {
+        setDataError('Failed to load kitchen data. Check backend connection.');
+      }
+    } finally {
+      setDataLoading(false);
+    }
   };
+
 
   useEffect(() => {
     loadKitchenData(selectedKitchenId);
@@ -146,10 +171,19 @@ export const KitchenDashboard: React.FC = () => {
     }
   };
 
-
-
   return (
     <div className="space-y-6">
+      {/* Init / connection error */}
+      {initError && (
+        <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 shrink-0" /> {initError}
+        </div>
+      )}
+      {dataError && (
+        <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 shrink-0" /> {dataError}
+        </div>
+      )}
       {/* Header & Facility Selector */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-white/5">
         <div>
@@ -226,13 +260,21 @@ export const KitchenDashboard: React.FC = () => {
               <span className="px-2 py-0.5 rounded-full bg-[#174C3C]/50 border border-[#F2C45A]/30 text-[#F2C45A] text-[10px] font-bold uppercase tracking-wider">
                 Plan with care • Prepare with purpose
               </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">94% Confidence</span>
+              {demands.length > 0 && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">
+                  {demands[0].model_version || 'demand-lgbm-v1.0'}
+                </span>
+              )}
             </div>
             <h2 className="text-sm sm:text-base font-bold text-white">
               AI Chef Operational Advisory (Active Shift)
             </h2>
             <p className="text-xs text-gray-300 max-w-2xl mt-0.5 leading-relaxed">
-              Campus attendance tracking indicates a <strong className="text-emerald-400">+12% footfall surge</strong> for Lunch. Basmati Rice &amp; Dal recommended production adjusted to 190.0 kg. Batch #101 has 48kg expiring in 5 hours—prioritize immediate recipe inclusion or dispatch to NGO.
+              {demands.length > 0
+                ? `Demand forecast ready for ${demands.length} items. Highest risk: ${demands.sort((a,b) => b.surplus_risk_probability - a.surplus_risk_probability)[0]?.food_name} (${(demands[0].surplus_risk_probability * 100).toFixed(0)}% surplus risk). Review production targets and dispatch expiring batches to NGO partners.`
+                : expiringBatches.length > 0
+                ? `${expiringBatches.filter((b: any) => b.status === 'NEARING_EXPIRY').length} batches nearing expiry. Run demand forecast to get production recommendations.`
+                : 'Run a demand forecast to receive AI-driven production recommendations for this shift.'}
             </p>
           </div>
         </div>
@@ -390,27 +432,16 @@ export const KitchenDashboard: React.FC = () => {
 
             <div className="flex flex-wrap items-center justify-center gap-3.5 min-h-[300px] py-4">
               {(() => {
-                const defaultBatches = [
-                  { id: 101, batch_number: 'BATCH-2026-K1-101', remaining_quantity_kg: 85,  status: 'NEARING_EXPIRY' },
-                  { id: 102, batch_number: 'BATCH-2026-K1-102', remaining_quantity_kg: 105, status: 'NEARING_EXPIRY' },
-                  { id: 107, batch_number: 'BATCH-2026-K1-107', remaining_quantity_kg: 68,  status: 'NEARING_EXPIRY' },
-                  { id: 103, batch_number: 'BATCH-2026-K1-103', remaining_quantity_kg: 125, status: 'OPTIMAL' },
-                  { id: 104, batch_number: 'BATCH-2026-K1-104', remaining_quantity_kg: 145, status: 'OPTIMAL' },
-                  { id: 105, batch_number: 'BATCH-2026-K1-105', remaining_quantity_kg: 165, status: 'OPTIMAL' },
-                  { id: 106, batch_number: 'BATCH-2026-K1-106', remaining_quantity_kg: 185, status: 'OPTIMAL' },
-                  { id: 108, batch_number: 'BATCH-2026-K1-108', remaining_quantity_kg: 95,  status: 'OPTIMAL' },
-                  { id: 109, batch_number: 'BATCH-2026-K1-109', remaining_quantity_kg: 115, status: 'OPTIMAL' },
-                  { id: 110, batch_number: 'BATCH-2026-K1-110', remaining_quantity_kg: 140, status: 'OPTIMAL' },
-                ];
+                const displayBatches = expiringBatches.slice(0, 10);
 
-                const activeBatches = [...expiringBatches];
-                for (const item of defaultBatches) {
-                  if (activeBatches.length >= 10) break;
-                  if (!activeBatches.some((b: any) => b.id === item.id || b.batch_number === item.batch_number)) {
-                    activeBatches.push(item);
-                  }
+                if (displayBatches.length === 0) {
+                  return (
+                    <div className="flex flex-col items-center justify-center min-h-[200px] text-center">
+                      <p className="text-xs text-gray-400">No batch records available.</p>
+                      <p className="text-[11px] text-gray-500 mt-1">Add inventory batches to see expiry tracking.</p>
+                    </div>
+                  );
                 }
-                const displayBatches = activeBatches.slice(0, 10);
 
                 const floatSettings = [
                   { animClass: 'bubble-float-A', dur: '4.6s', delay: '-1.2s', offsetY: '-8px' },
@@ -505,28 +536,33 @@ export const KitchenDashboard: React.FC = () => {
           </div>
 
 
-          {/* Waste Prediction Box */}
-          <div className="glass-card p-6 rounded-2xl border-l-4 border-l-cyan-500">
+            <div className="glass-card p-6 rounded-2xl border-l-4 border-l-cyan-500">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Shift Waste Risk Forecast</h3>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
                 Rule-based waste risk
               </span>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-white">
-                {wastePrediction ? `${wastePrediction.expected_waste_kg} kg` : '14.8 kg'}
-              </span>
-              <span className="text-xs text-cyan-400 font-bold">
-                ({wastePrediction ? (wastePrediction.waste_probability * 100).toFixed(0) : '21'}% risk prob)
-              </span>
-            </div>
-            <p className="text-xs text-gray-300 mt-2 leading-relaxed">
-              <strong>Root Cause:</strong> {wastePrediction?.predicted_root_cause || 'Overproduction during dinner slot.'}
-            </p>
-            <p className="text-xs text-emerald-400 mt-1 font-medium">
-              💡 <strong>Action:</strong> {wastePrediction?.prevention_recommendation || 'Throttle batch size by 8% to eliminate excess.'}
-            </p>
+            {wastePrediction ? (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-white">
+                    {wastePrediction.expected_waste_kg} kg
+                  </span>
+                  <span className="text-xs text-cyan-400 font-bold">
+                    ({(wastePrediction.waste_probability * 100).toFixed(0)}% risk prob)
+                  </span>
+                </div>
+                <p className="text-xs text-gray-300 mt-2 leading-relaxed">
+                  <strong>Root Cause:</strong> {wastePrediction.predicted_root_cause}
+                </p>
+                <p className="text-xs text-emerald-400 mt-1 font-medium">
+                  💡 <strong>Action:</strong> {wastePrediction.prevention_recommendation}
+                </p>
+              </>
+            ) : (
+              <p className="text-xs text-gray-400 mt-2">No waste prediction data available.</p>
+            )}
           </div>
         </div>
       </div>

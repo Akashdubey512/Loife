@@ -4,7 +4,8 @@ export type DashboardTab =
   | 'quality'
   | 'redistribution'
   | 'logistics'
-  | 'sustainability';
+  | 'sustainability'
+  | 'ml_status';
 
 export interface ExecutiveStats {
   total_food_saved_kg: number;
@@ -65,6 +66,34 @@ export interface QualityScanResult {
   human_verified?: boolean;
   food_safety_verdict?: string;
   inspector_name?: string;
+  // Truthfulness fields from backend
+  simulated?: boolean;
+  simulation_notice?: string | null;
+}
+
+export interface MLEngineStatus {
+  engine: string;
+  model_type?: string;
+  model_version?: string;
+  trained?: boolean;
+  simulated?: boolean;
+  status?: string;
+  reason?: string;
+  scope?: string;
+  endpoint?: string;
+  error?: string;
+  product_count?: number;
+  benchmark?: string;
+  average_gap_pct?: number;
+}
+
+export interface MLStatusResponse {
+  platform: string;
+  ml_status: string;
+  trained_models: number;
+  active_engines: number;
+  total_engines: number;
+  engines: MLEngineStatus[];
 }
 
 export interface SurplusItem {

@@ -24,6 +24,7 @@ const ALL_NAV_ITEMS: Array<{ id: DashboardTab; label: string; icon: React.FC<{ c
   { id: 'redistribution', label: 'Redistribution Hub',  icon: HeartHandshake },
   { id: 'logistics',      label: 'Logistics & Routes',  icon: Truck },
   { id: 'sustainability', label: 'Sustainability & ESG', icon: BarChart3 },
+  { id: 'ml_status',      label: 'ML Engine Status',    icon: Cpu },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => {

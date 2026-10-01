@@ -7,6 +7,7 @@ import { QualityDashboard } from '../dashboards/QualityDashboard';
 import { RedistributionDashboard } from '../dashboards/RedistributionDashboard';
 import { LogisticsDashboard } from '../dashboards/LogisticsDashboard';
 import { SustainabilityDashboard } from '../dashboards/SustainabilityDashboard';
+import { MLStatusDashboard } from '../dashboards/MLStatusDashboard';
 import { DashboardTab } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { getDefaultTab, canAccessTab } from '../utils/roleNav';
@@ -42,6 +43,7 @@ export const DashboardPage: React.FC = () => {
       case 'redistribution':  return <RedistributionDashboard />;
       case 'logistics':       return <LogisticsDashboard />;
       case 'sustainability':  return <SustainabilityDashboard />;
+      case 'ml_status':       return <MLStatusDashboard />;
       default:                return <ExecutiveDashboard />;
     }
   };

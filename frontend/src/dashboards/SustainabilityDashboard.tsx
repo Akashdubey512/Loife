@@ -25,10 +25,23 @@ export const SustainabilityDashboard: React.FC = () => {
   const [loadingAudit, setLoadingAudit] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+  const [auditError, setAuditError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchSummary = async () => {
-      const data = await apiService.getSustainabilitySummary();
-      setSummary(data);
+      setSummaryLoading(true);
+      setSummaryError(null);
+      try {
+        const data = await apiService.getSustainabilitySummary();
+        setSummary(data);
+      } catch (err: any) {
+        const detail = err?.response?.data?.detail;
+        setSummaryError(typeof detail === 'string' ? detail : 'Failed to load sustainability data. Check backend connection.');
+      } finally {
+        setSummaryLoading(false);
+      }
     };
     fetchSummary();
   }, []);
@@ -37,41 +50,14 @@ export const SustainabilityDashboard: React.FC = () => {
     setDownloadModal(true);
     setLoadingAudit(true);
     setDownloadSuccess(false);
+    setAuditError(null);
     try {
       const report = await apiService.getEsgAuditReport(1, 'FY 2026-Q1');
       setAuditReport(report);
-    } catch {
-      // Graceful fallback for demonstration if backend is unreachable
-      setAuditReport({
-        report_id: 'ESG-202609-F4C9B10A',
-        organization_name: 'Apex Institutional Dining Partner',
-        audit_date: new Date().toISOString(),
-        reporting_period: 'FY 2026-Q1',
-        measured_rescued_kg: summary?.food_rescued_kg || 4250.0,
-        pipeline_potential_kg: summary?.pipeline_potential_kg || 83.0,
-        co2e_avoided_kg: summary?.co2_avoided_kg || 10625.0,
-        virtual_water_conserved_liters: summary?.water_saved_liters || 2125000.0,
-        land_use_prevented_sqm: summary?.land_use_prevented_sqm || 8500.0,
-        meals_served_to_needy: summary?.meals_served_to_needy || 8500,
-        equivalent_trees_planted: 488.1,
-        car_km_emissions_offset: 55338.5,
-        verified_deliveries_count: 142,
-        scope_3_compliance_status: 'AUDITED_AND_COMPLIANT_GHG_CAT_1',
-        methodology: 'Poore & Nemecek (2018) Science LCA Multipliers; WRAP UK Food Waste & GHG Equivalents; IPCC AR6 GWP100.',
-        category_breakdown: [
-          { category: 'Cooked Institutional Meals', kg_saved: 1850.0, co2_kg: 4625.0, water_liters: 925000.0, land_sqm: 3700.0 },
-          { category: 'Fresh Produce & Vegetables', kg_saved: 980.0, co2_kg: 490.0, water_liters: 315560.0, land_sqm: 392.0 },
-          { category: 'Dairy, Milk & Paneer', kg_saved: 420.0, co2_kg: 1344.0, water_liters: 263760.0, land_sqm: 1890.0 },
-          { category: 'Bakery & Bread Products', kg_saved: 590.0, co2_kg: 944.0, water_liters: 649000.0, land_sqm: 1062.0 },
-        ],
-        assumptions: [
-          'Food rescue emission factors derived from peer-reviewed Science LCA database (Poore & Nemecek 2018).',
-          'Methane avoidance calculation adopts IPCC AR6 GWP100 index for anaerobic landfill diversion.',
-          'Water conservation measures virtual embedded water footprint across upstream agricultural production.',
-          'Portion sizing: 1 institutional meal benchmarked at 0.50 kg cooked or 0.35 kg staple grain equivalent.',
-          'Tree sequestration equivalence assumes 1 mature European beech/conifer absorbing 21.77 kg CO2 annually.'
-        ]
-      });
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      setAuditError(typeof detail === 'string' ? detail : 'Failed to load ESG audit report. Check backend connection.');
+      setDownloadModal(false);
     } finally {
       setLoadingAudit(false);
     }
@@ -134,15 +120,22 @@ Issuing Authority: Loife ESG Auditing Subsystem
     co2: c.co2_kg,
     water: Math.round(c.water_liters / 1000),
     fill: '#10b981'
-  })) || [
-    { name: 'Cooked', co2: 4625, water: 925, fill: '#10b981' },
-    { name: 'Dairy', co2: 1344, water: 263, fill: '#06b6d4' },
-    { name: 'Bakery', co2: 944, water: 649, fill: '#8b5cf6' },
-    { name: 'Produce', co2: 490, water: 315, fill: '#f59e0b' },
-  ];
+  })) || [];
+
 
   return (
     <div className="space-y-6">
+      {/* Error banners */}
+      {summaryError && (
+        <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
+          <RefreshCw className="h-4 w-4 shrink-0" /> {summaryError}
+        </div>
+      )}
+      {auditError && (
+        <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
+          <RefreshCw className="h-4 w-4 shrink-0" /> ESG Report Error: {auditError}
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-white/5">
         <div>

@@ -17,6 +17,7 @@ export const RedistributionDashboard: React.FC = () => {
   const [matches, setMatches] = useState<NGOMatch[]>([]);
   const [matchingLoading, setMatchingLoading] = useState(false);
   const [dispatchedSuccess, setDispatchedSuccess] = useState(false);
+  const [surplusError, setSurplusError] = useState<string | null>(null);
 
   const loadMatches = async (reqId: number) => {
     setMatchingLoading(true);
@@ -30,11 +31,16 @@ export const RedistributionDashboard: React.FC = () => {
 
   useEffect(() => {
     const fetchSurplus = async () => {
-      const data = await apiService.getSurplusList();
-      setSurplusList(data);
-      if (data.length > 0) {
-        setSelectedSurplus(data[0]);
-        loadMatches(data[0].id);
+      try {
+        const data = await apiService.getSurplusList();
+        setSurplusList(data);
+        if (data.length > 0) {
+          setSelectedSurplus(data[0]);
+          loadMatches(data[0].id);
+        }
+      } catch (err: any) {
+        const detail = err?.response?.data?.detail;
+        setSurplusError(typeof detail === 'string' ? detail : 'Failed to load surplus list. Check backend connection.');
       }
     };
     fetchSurplus();
@@ -77,6 +83,11 @@ export const RedistributionDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {surplusError && (
+        <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 shrink-0" /> {surplusError}
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-white/5">
         <div>
@@ -86,9 +97,10 @@ export const RedistributionDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">Total Rescued Today:</span>
+          <span className="text-xs text-gray-400">Total Available Today:</span>
           <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-            83.0 kg (208 meals)
+            {surplusList.filter(s => s.status === 'POSTED' || s.status === 'MATCHED').reduce((sum, s) => sum + s.quantity_kg, 0).toFixed(1)} kg
+            {' '}({surplusList.filter(s => s.status === 'POSTED' || s.status === 'MATCHED').reduce((sum, s) => sum + s.estimated_meals, 0)} meals)
           </span>
         </div>
       </div>
