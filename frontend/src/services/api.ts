@@ -204,10 +204,19 @@ export const apiService = {
     kitchen_id: number;
     food_item_id: number;
     quantity_kg: number;
+    estimated_meals?: number;
     expires_at: string;
     safe_temp_celsius?: number;
   }): Promise<any> => {
-    const res = await apiClient.post('/redistribution/surplus', payload);
+    const body = {
+      kitchen_id: payload.kitchen_id,
+      food_item_id: payload.food_item_id,
+      quantity_kg: payload.quantity_kg,
+      estimated_meals: payload.estimated_meals ?? Math.max(1, Math.round(payload.quantity_kg * 2.5)),
+      expires_at: payload.expires_at,
+      safe_temp_celsius: payload.safe_temp_celsius ?? 65.0
+    };
+    const res = await apiClient.post('/redistribution/surplus', body);
     return res.data;
   },
 

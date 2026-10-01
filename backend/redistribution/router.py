@@ -80,11 +80,13 @@ def post_surplus(
         raise HTTPException(status_code=404, detail="Kitchen not found")
     check_tenant_access(current_user, kitchen.organization_id)
 
+    meals_val = item_in.estimated_meals if item_in.estimated_meals is not None else max(1, int(item_in.quantity_kg * 2.5))
+
     req = RedistributionRequest(
         kitchen_id=item_in.kitchen_id,
         food_item_id=item_in.food_item_id,
         quantity_kg=item_in.quantity_kg,
-        estimated_meals=item_in.estimated_meals,
+        estimated_meals=meals_val,
         expires_at=item_in.expires_at,
         safe_temp_celsius=item_in.safe_temp_celsius,
         status="POSTED"

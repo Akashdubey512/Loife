@@ -20,7 +20,7 @@ class RedistributionRequestCreate(BaseModel):
     kitchen_id: int
     food_item_id: int
     quantity_kg: float
-    estimated_meals: int
+    estimated_meals: Optional[int] = None
     expires_at: datetime
     safe_temp_celsius: Optional[float] = 65.0
 
