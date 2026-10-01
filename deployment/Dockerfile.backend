@@ -21,6 +21,7 @@ COPY ml/ ./ml/
 COPY cv/ ./cv/
 COPY iot/ ./iot/
 COPY logistics/ ./logistics/
+COPY models/ ./models/
 
 # Assign ownership of application directory to unprivileged user
 RUN chown -R appuser:appgroup /app

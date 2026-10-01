@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ml/ ./ml/
 COPY cv/ ./cv/
+COPY models/ ./models/
 
 EXPOSE 8001
 
