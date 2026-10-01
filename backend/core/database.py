@@ -20,11 +20,25 @@ if db_url.startswith("sqlite"):
         rel_path = db_url.replace("sqlite:///./", "").replace("sqlite:///", "")
         resolved = (root_dir / rel_path).resolve()
         db_url = f"sqlite:///{resolved.as_posix()}"
+elif db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+engine_kwargs = {
+    "pool_pre_ping": True,
+}
+
+if not db_url.startswith("sqlite"):
+    engine_kwargs.update({
+        "pool_size": 5,
+        "max_overflow": 10,
+        "pool_timeout": 10,
+        "pool_recycle": 300,
+    })
 
 engine = create_engine(
     db_url,
     connect_args=connect_args,
-    pool_pre_ping=True
+    **engine_kwargs
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
