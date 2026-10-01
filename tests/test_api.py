@@ -23,7 +23,7 @@ from backend.core.security import hash_password
 
 # Ensure database tables and seeds exist before tests run
 Base.metadata.create_all(bind=engine)
-seed_database()
+seed_database(force=True)
 
 client = TestClient(app)
 

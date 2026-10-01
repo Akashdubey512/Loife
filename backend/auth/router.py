@@ -18,7 +18,9 @@ def login(
     db: Session = Depends(get_db),
     _rate_limit: None = Depends(check_auth_rate_limit)
 ):
-    user = db.query(User).filter(User.email == credentials.username).first()
+    from sqlalchemy import func
+    email_clean = (credentials.username or "").strip().lower()
+    user = db.query(User).filter(func.lower(User.email) == email_clean).first()
     if not user or not verify_password(credentials.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
