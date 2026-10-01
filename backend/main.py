@@ -52,14 +52,18 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing reServe AI platform (Environment: %s)", settings.ENVIRONMENT)
     # Initialize DB tables
     Base.metadata.create_all(bind=engine)
-    # Automatic seeding is strictly disabled in production.
-    # In development, it requires explicit opt-in via SEED_DEMO_DATA=true or CLI: python -m backend.services.seed_service
-    if settings.ENVIRONMENT != "production" and os.getenv("SEED_DEMO_DATA", "false").lower() in ("true", "1", "yes"):
-        try:
-            seed_database()
-            logger.info("Development database seeding complete.")
-        except Exception as e:
-            logger.warning("Database demo seeding caught: %s", str(e))
+    try:
+        from backend.models.entities import User
+        from backend.core.database import SessionLocal
+        db = SessionLocal()
+        user_count = db.query(User).count()
+        db.close()
+        if user_count == 0:
+            logger.info("Empty database detected. Seeding initial demo accounts...")
+            seed_database(force=True)
+            logger.info("Initial database seeding completed successfully.")
+    except Exception as e:
+        logger.warning("Auto-seed check caught: %s", str(e))
     logger.info("reServe AI platform services operational.")
     yield
     logger.info("Shutting down reServe AI platform services cleanly.")
