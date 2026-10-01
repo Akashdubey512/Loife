@@ -50,14 +50,22 @@ logger = logging.getLogger("reserve_ai.platform")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Initializing reServe AI platform (Environment: %s)", settings.ENVIRONMENT)
-    # Initialize DB tables metadata
-    Base.metadata.create_all(bind=engine)
     try:
-        logger.info("Ensuring initial demo accounts exist in database...")
-        seed_database(force=True)
-        logger.info("Database seeding check complete.")
+        Base.metadata.create_all(bind=engine)
     except Exception as e:
-        logger.warning("Auto-seed check caught: %s", str(e))
+        logger.warning("Table metadata creation warning: %s", str(e))
+    
+    import asyncio
+    async def _async_seed_bg():
+        try:
+            logger.info("Ensuring initial demo accounts exist in background...")
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, lambda: seed_database(force=True))
+            logger.info("Database seeding check complete.")
+        except Exception as e:
+            logger.warning("Auto-seed background task caught: %s", str(e))
+
+    asyncio.create_task(_async_seed_bg())
     logger.info("reServe AI platform services operational.")
     yield
     logger.info("Shutting down reServe AI platform services cleanly.")

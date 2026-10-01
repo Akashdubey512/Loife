@@ -20,8 +20,12 @@ if db_url.startswith("sqlite"):
         rel_path = db_url.replace("sqlite:///./", "").replace("sqlite:///", "")
         resolved = (root_dir / rel_path).resolve()
         db_url = f"sqlite:///{resolved.as_posix()}"
-elif db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+else:
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    if ("supabase" in db_url or "pooler.supabase.com" in db_url) and "sslmode" not in db_url:
+        separator = "&" if "?" in db_url else "?"
+        db_url = f"{db_url}{separator}sslmode=require"
 
 engine_kwargs = {
     "pool_pre_ping": True,
