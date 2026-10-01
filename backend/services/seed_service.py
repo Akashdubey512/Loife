@@ -71,6 +71,9 @@ def seed_database(force: bool = False):
                     is_active=True
                 )
                 db.add(u)
+            else:
+                existing_user.hashed_password = hash_password(pwd)
+                existing_user.is_active = True
         db.commit()
 
         # Check if rest of entities already seeded
