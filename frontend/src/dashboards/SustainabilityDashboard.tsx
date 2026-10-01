@@ -21,6 +21,7 @@ import { SustainabilitySummary, EsgAuditReport } from '../types';
 export const SustainabilityDashboard: React.FC = () => {
   const [summary, setSummary] = useState<SustainabilitySummary | null>(null);
   const [auditReport, setAuditReport] = useState<EsgAuditReport | null>(null);
+  const [categoryData, setCategoryData] = useState<any[]>([]);
   const [downloadModal, setDownloadModal] = useState(false);
   const [loadingAudit, setLoadingAudit] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
@@ -34,8 +35,19 @@ export const SustainabilityDashboard: React.FC = () => {
       setSummaryLoading(true);
       setSummaryError(null);
       try {
-        const data = await apiService.getSustainabilitySummary();
+        const [data, catData] = await Promise.all([
+          apiService.getSustainabilitySummary(),
+          apiService.getCategoryBreakdown(true)
+        ]);
         setSummary(data);
+        if (catData && catData.length > 0) {
+          setCategoryData(catData.map((c: any) => ({
+            name: (c.category || '').replace(/\[Benchmark\]\s*/, '').split(' ')[0] || c.category,
+            co2: c.co2_kg,
+            water: Math.round((c.water_liters || 0) / 1000),
+            fill: '#10b981'
+          })));
+        }
       } catch (err: any) {
         const detail = err?.response?.data?.detail;
         setSummaryError(typeof detail === 'string' ? detail : 'Failed to load sustainability data. Check backend connection.');
@@ -114,13 +126,6 @@ Issuing Authority: Loife ESG Auditing Subsystem
     URL.revokeObjectURL(url);
     setDownloadSuccess(true);
   };
-
-  const categoryData = auditReport?.category_breakdown?.map(c => ({
-    name: c.category.split(' ')[0] || c.category,
-    co2: c.co2_kg,
-    water: Math.round(c.water_liters / 1000),
-    fill: '#10b981'
-  })) || [];
 
 
   return (

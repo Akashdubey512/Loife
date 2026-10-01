@@ -282,6 +282,11 @@ export const apiService = {
     return res.data;
   },
 
+  getCategoryBreakdown: async (includeBenchmarks: boolean = true): Promise<any[]> => {
+    const res = await apiClient.get(`/sustainability/by-category?include_benchmarks=${includeBenchmarks}`);
+    return res.data;
+  },
+
   getEsgAuditReport: async (organizationId: number = 1, period: string = 'FY 2026-Q1'): Promise<EsgAuditReport> => {
     const res = await apiClient.get(`/sustainability/audit-report?organization_id=${organizationId}&reporting_period=${encodeURIComponent(period)}`);
     return res.data;

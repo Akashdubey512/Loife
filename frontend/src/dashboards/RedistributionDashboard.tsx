@@ -96,12 +96,14 @@ export const RedistributionDashboard: React.FC = () => {
             Autonomous multi-factor matching connecting edible surplus with verified local NGOs, shelters, and food banks.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">Total Available Today:</span>
-          <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-            {surplusList.filter(s => s.status === 'POSTED' || s.status === 'MATCHED').reduce((sum, s) => sum + s.quantity_kg, 0).toFixed(1)} kg
-            {' '}({surplusList.filter(s => s.status === 'POSTED' || s.status === 'MATCHED').reduce((sum, s) => sum + s.estimated_meals, 0)} meals)
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400">Total Available Today:</span>
+            <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              {surplusList.filter(s => s.status === 'POSTED' || s.status === 'MATCHED').reduce((sum, s) => sum + s.quantity_kg, 0).toFixed(1)} kg
+              {' '}({surplusList.filter(s => s.status === 'POSTED' || s.status === 'MATCHED').reduce((sum, s) => sum + s.estimated_meals, 0)} meals)
+            </span>
+          </div>
         </div>
       </div>
 

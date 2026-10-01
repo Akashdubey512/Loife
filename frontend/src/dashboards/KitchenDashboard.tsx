@@ -34,6 +34,7 @@ export const KitchenDashboard: React.FC = () => {
   const [forecastFootfall, setForecastFootfall] = useState<number>(450);
   const [forecastingLoading, setForecastingLoading] = useState(false);
   const [forecastSuccessMsg, setForecastSuccessMsg] = useState<string | null>(null);
+  const [dashboardForecastMsg, setDashboardForecastMsg] = useState<string | null>(null);
 
   // Waste Event Logger state
   const [wasteModalOpen, setWasteModalOpen] = useState(false);
@@ -41,6 +42,13 @@ export const KitchenDashboard: React.FC = () => {
   const [wasteCause, setWasteCause] = useState<string>('OVERPRODUCTION');
   const [wasteStage, setWasteStage] = useState<string>('LEFTOVER_BUFFET');
   const [wasteErrorMsg, setWasteErrorMsg] = useState<string | null>(null);
+
+  // Declare Surplus state (Posts directly to Redistribution Hub)
+  const [surplusModalOpen, setSurplusModalOpen] = useState(false);
+  const [surplusQuantityKg, setSurplusQuantityKg] = useState<string>('15.0');
+  const [surplusExpiryHours, setSurplusExpiryHours] = useState<string>('6');
+  const [surplusLoading, setSurplusLoading] = useState(false);
+  const [surplusSuccessMsg, setSurplusSuccessMsg] = useState<string | null>(null);
 
   // Load Kitchens and Food items on mount
   useEffect(() => {
@@ -111,19 +119,38 @@ export const KitchenDashboard: React.FC = () => {
         expected_footfall: forecastFootfall
       });
 
-      setForecastSuccessMsg(
-        `Forecast persisted! Expected Demand: ${res.expected_demand_kg} kg | Inventory on Hand: ${res.current_inventory_on_hand_kg || 0} kg | Net Recommended Prep: ${res.net_recommended_production_kg} kg`
-      );
+      const msg = `AI Forecast Generated & Persisted to DB Schedule! Item: ${res.food_name || 'Selected Item'} | Expected Demand: ${res.expected_demand_kg} kg | Inventory on Hand: ${res.current_inventory_on_hand_kg || 0} kg | Net Prep Target: ${res.net_recommended_production_kg} kg`;
+      setForecastSuccessMsg(msg);
+      setDashboardForecastMsg(msg);
+
+      // Immediately append/update demands state in UI
+      setDemands(prev => {
+        const existingIdx = prev.findIndex(item => item.food_item_id === res.food_item_id);
+        const newItem: DemandItem = {
+          food_item_id: res.food_item_id,
+          food_name: res.food_name || `Item #${res.food_item_id}`,
+          expected_demand_kg: res.expected_demand_kg,
+          confidence_score: res.confidence_score,
+          recommended_production_kg: res.net_recommended_production_kg || res.recommended_production_kg,
+          surplus_risk_probability: res.surplus_risk_probability,
+          model_version: res.model_version || 'demand-lgbm-v1.0'
+        };
+        if (existingIdx >= 0) {
+          const copy = [...prev];
+          copy[existingIdx] = newItem;
+          return copy;
+        }
+        return [newItem, ...prev];
+      });
 
       // Reload demands from persisted DB
       await loadKitchenData(selectedKitchenId);
       setTimeout(() => {
         setForecastModalOpen(false);
-      }, 1500);
+      }, 1200);
     } catch (err: any) {
       const detail = err?.response?.data?.detail;
       setForecastSuccessMsg(null);
-      // Show the actual server error instead of masking it
       alert(`Forecast failed: ${typeof detail === 'string' ? detail : 'API error — check backend connection.'}`);
     } finally {
       setForecastingLoading(false);
@@ -149,14 +176,30 @@ export const KitchenDashboard: React.FC = () => {
         primary_cause: wasteCause,
         waste_stage: wasteStage
       });
-      setWasteSuccessMsg(`Waste event logged: ${qty} kg.`);
+
+      let extraNotice = '';
+      // If overproduction or leftover buffet, automatically post edible portion to Redistribution Hub!
+      if (wasteCause === 'OVERPRODUCTION' || wasteStage === 'LEFTOVER_BUFFET') {
+        try {
+          const expTime = new Date(Date.now() + 6 * 3600 * 1000).toISOString();
+          await apiService.createSurplus({
+            kitchen_id: selectedKitchenId,
+            food_item_id: selectedFoodItemId,
+            quantity_kg: qty,
+            expires_at: expTime,
+            safe_temp_celsius: 65.0
+          });
+          extraNotice = ' & Edible portion automatically posted live to Redistribution Hub!';
+        } catch { /* non-critical */ }
+      }
+
+      setWasteSuccessMsg(`Waste event logged: ${qty} kg${extraNotice}`);
       await loadKitchenData(selectedKitchenId);
       setTimeout(() => {
         setWasteModalOpen(false);
         setWasteSuccessMsg(null);
-      }, 1500);
+      }, 1800);
     } catch (err: any) {
-      // Never silently claim success on error
       const detail = err?.response?.data?.detail;
       const status = err?.response?.status;
       if (status === 401) {
@@ -168,6 +211,38 @@ export const KitchenDashboard: React.FC = () => {
       }
     } finally {
       setWasteLoading(false);
+    }
+  };
+
+  // Handle Declare Surplus (Posts directly to Redistribution Hub)
+  const handleDeclareSurplus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSurplusLoading(true);
+    setSurplusSuccessMsg(null);
+    try {
+      const qty = parseFloat(surplusQuantityKg) || 10.0;
+      const hrs = parseInt(surplusExpiryHours) || 6;
+      const expiresAt = new Date(Date.now() + hrs * 3600 * 1000).toISOString();
+
+      await apiService.createSurplus({
+        kitchen_id: selectedKitchenId,
+        food_item_id: selectedFoodItemId,
+        quantity_kg: qty,
+        expires_at: expiresAt,
+        safe_temp_celsius: 65.0
+      });
+
+      setSurplusSuccessMsg(`Surplus lot declared (${qty} kg) and posted live to the Redistribution Hub!`);
+      await loadKitchenData(selectedKitchenId);
+      setTimeout(() => {
+        setSurplusModalOpen(false);
+        setSurplusSuccessMsg(null);
+      }, 1500);
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      alert(`Surplus declaration failed: ${typeof detail === 'string' ? detail : 'API error — check backend connection.'}`);
+    } finally {
+      setSurplusLoading(false);
     }
   };
 
@@ -237,6 +312,13 @@ export const KitchenDashboard: React.FC = () => {
           </button>
 
           <button
+            onClick={() => setSurplusModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-gray-950 transition shadow-lg shadow-cyan-500/20"
+          >
+            <Boxes className="h-4 w-4" /> Declare Surplus
+          </button>
+
+          <button
             onClick={() => setWasteModalOpen(true)}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/15 text-rose-300 border border-rose-500/30 transition"
           >
@@ -244,6 +326,22 @@ export const KitchenDashboard: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Dashboard Forecast Toast/Banner */}
+      {dashboardForecastMsg && (
+        <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-500/60 text-emerald-300 text-xs flex items-center justify-between gap-3 shadow-xl animate-in fade-in duration-300">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+            <span className="font-medium">{dashboardForecastMsg}</span>
+          </div>
+          <button
+            onClick={() => setDashboardForecastMsg(null)}
+            className="text-gray-400 hover:text-white text-xs font-bold px-2 py-1 rounded bg-white/10"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Loife Kitchen Mindful Prep Banner */}
       <div className="loife-surface-warm p-4 md:p-5 rounded-2xl border border-[#F2C45A]/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
@@ -764,6 +862,100 @@ export const KitchenDashboard: React.FC = () => {
                   className="px-5 py-2 rounded-xl text-xs font-bold bg-rose-500 hover:bg-rose-400 text-white shadow-lg shadow-rose-500/20 disabled:opacity-50"
                 >
                   {wasteLoading ? 'Recording Event...' : 'Confirm & Log Waste'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Declare Surplus Food (Posts directly to Redistribution Hub) */}
+      {surplusModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
+          <div className="glass-panel border border-white/15 rounded-3xl p-6 max-w-lg w-full shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
+              <div className="flex items-center gap-2">
+                <Boxes className="h-5 w-5 text-cyan-400" />
+                <h3 className="text-base font-bold text-white">Declare Surplus Food for Redistribution</h3>
+              </div>
+              <button 
+                onClick={() => setSurplusModalOpen(false)}
+                className="text-gray-400 hover:text-white text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleDeclareSurplus} className="space-y-4">
+              {surplusSuccessMsg && (
+                <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  <span>{surplusSuccessMsg}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs text-gray-300 font-semibold block mb-1">Surplus Food Item</label>
+                <select
+                  value={selectedFoodItemId}
+                  onChange={(e) => setSelectedFoodItemId(Number(e.target.value))}
+                  aria-label="Select Surplus Food Item"
+                  className="w-full px-3 py-2 rounded-xl bg-gray-900 border border-white/15 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                >
+                  {foodItems.map((fi, idx) => (
+                    <option key={`fi-surplus-${fi.id}-${idx}`} value={fi.id}>
+                      {fi.name} ({fi.category})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-gray-300 font-semibold block mb-1">Surplus Quantity (kg)</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="1"
+                    required
+                    value={surplusQuantityKg}
+                    onChange={(e) => setSurplusQuantityKg(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-gray-300 font-semibold block mb-1">Safe Shelf Life (Hours)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="48"
+                    required
+                    value={surplusExpiryHours}
+                    onChange={(e) => setSurplusExpiryHours(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <p className="text-[11px] text-gray-400 bg-white/5 p-3 rounded-xl border border-white/5">
+                ℹ️ Declaring surplus posts this lot directly to the **Redistribution Hub** for local NGO matching, vehicle dispatch, and social impact tracking.
+              </p>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSurplusModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs text-gray-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={surplusLoading}
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-gray-950 shadow-lg shadow-cyan-500/20 disabled:opacity-50"
+                >
+                  {surplusLoading ? 'Posting to Hub...' : 'Post Surplus to Hub'}
                 </button>
               </div>
             </form>
